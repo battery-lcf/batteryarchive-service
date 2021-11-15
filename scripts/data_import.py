@@ -208,7 +208,7 @@ def calc_cycle_stats(df_t, df_cell_md, df_test_md):
 # remove metadata entries from MACCOR files
 def prepare_maccor_file(cellpath):
 
-    a_file = open(cellpath, "r")
+    a_file = open(cellpath, "r", encoding='utf8', errors='ignore')
     lines = a_file.readlines()
     a_file.close()
 
@@ -248,6 +248,8 @@ def read_ornlabuse(cell_id, file_path):
     df_tmerge = pd.DataFrame()
 
     for excel in excels:
+        if '~$' in excel:
+            continue
         df_time_series_file = pd.read_excel(excel, sheet_name='data')  # dictionary of sheets
 
         df_time_series_a = pd.DataFrame()
@@ -294,6 +296,8 @@ def read_snlabuse(cell_id, file_path):
     df_tmerge = pd.DataFrame()
 
     for excel in excels:
+        if '~$' in excel:
+            continue
         df_time_series_file = pd.read_excel(excel, sheet_name='data')  # dictionary of sheets
 
         df_time_series = pd.DataFrame()
@@ -516,6 +520,8 @@ def read_arbin(cell_id, file_path):
         logging.info('processing file: ' + filename)
 
         if os.path.exists(cellpath):
+            if '~$' in cellpath:
+                continue
             df_cell = pd.read_excel(cellpath, None)
             # Find the time series sheet in the excel file
             for k in df_cell.keys():
@@ -864,7 +870,7 @@ def export_cells(cell_list, conn, path):
             generate_cycle_data(cell_id, conn, path)
             generate_timeseries_data(cell_id, conn, path)
 
-    return;
+    return
 
 
 # add new calculated quantities to cells previously imported, or update existing calculated statistics

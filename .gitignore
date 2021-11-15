@@ -1,0 +1,11 @@
+*__pycache__
+*.DS_Store
+env
+battery-blc-library.yaml
+.vscode
+*~$*
+.idea
+tests/test-data/tmp/
+*.db
+.pytest_cache
+.devcontainer

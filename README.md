@@ -10,6 +10,19 @@ To learn more about the design of the software, read our paper available online 
 
 For more information, contact us at info@batteryarchive.org.
 
+
+## How To Develop
+```
+
+```
+
+## How To Test
+Single line joint command to build image and run pytests
+
+```
+docker build . -t bas-test --target test && docker run bas-test
+```
+
 #
 Copyright 2021 National Technology & Engineering Solutions of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains certain rights in this software.
 
