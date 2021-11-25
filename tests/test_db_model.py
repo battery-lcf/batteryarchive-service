@@ -87,17 +87,21 @@ def test_generate_timeseries_data(db_session):
 
 
 def test_add_abuse_cells_to_database(db_session):
-    cell_lists_path = "/bas/data/data_set_samples/abuse/"
+    cell_lists_path = "/bas/tests/test-data/abuse/"
     Model.metadata.drop_all(db_session.bind)
     ao = ArchiveOperator(TEST_DB_URL)
     assert ao.add_cells_to_database(cell_lists_path)
 
 
 def test_add_cycle_cells_to_database(db_session):
-    cell_lists_path = "/bas/data/data_set_samples/cycle/"
+    cell_lists_path = "/bas/tests/test-data/cycle/"
+    result_path = (
+        "/bas/tests/test-data/cycle/MACCOR_example/MACCOR_example.txt_df"
+    )
     Model.metadata.drop_all(db_session.bind)
     ao = ArchiveOperator(TEST_DB_URL)
     assert ao.add_cells_to_database(cell_lists_path)
+    os.remove(result_path)
 
 
 @pytest.mark.skip(reason="not yet implemented. requires sqlalchemy")
