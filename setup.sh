@@ -10,6 +10,11 @@ POSTGRES_PASSWORD=$(pwgen -1s 32)
 REDASH_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@postgres/postgres"
 DATABASE_CONNECTION="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/postgres"
 PGADMIN4_PASSWORD=$(pwgen -1s 32)
+HOST_IP_ADDRESS=$(ip -o route get to 8.8.8.8 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
+
+## Settings for the postgres data database
+POSTGRES_DB_NAME="postgres"
+POSTGRES_DB_USER="postgres"
 
 echo "PYTHONUNBUFFERED=0" >> env
 echo "REDASH_LOG_LEVEL=INFO" >> env
@@ -30,7 +35,19 @@ sudo docker-compose run --rm server create_db
 
 ## Run server manage entrypoint. This runs
 ## /app/manage.py users create_root [admin_email] admin --password [admin_email]
-sudo docker-compose run --rm server manage users create_root --password ${REDASH_ADMIN_PASSWORD} ${REDASH_ADMIN_EMAIL} admin 
+## This command is to create a base line admin user. 
+sudo docker-compose run --rm server manage users create_root --password ${REDASH_ADMIN_PASSWORD} ${DEFAULT_EMAIL} admin 
+
+## Run server manage entrypoint. This runs
+## /app/manage.py manage ds new --type pg --options [OPTIONS JSON] NAME
+## This will create the first datasource that will be hold the cell data
+
+### Data source options JSON format to populate the database
+DATASOURCE_OPTIONS_JSON_FMT='{"dbname":"%s","host":"%s","port":5432,"password":"%s","user":"%s"}'
+DATASOURCE_OPTIONS_JSON_STRING=$(printf "$DATASOURCE_OPTIONS_JSON_FMT" $POSTGRES_DB_NAME $HOST_IP_ADDRESS $POSTGRES_PASSWORD $POSTGRES_DB_USER)
+
+## Add the first datasource
+sudo docker-compose run --rm server manage ds new --type pg --options ${DATASOURCE_OPTIONS_JSON_STRING} "battery_archive"
 
 ## Run the composed stack
 sudo docker-compose up -d 
