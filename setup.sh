@@ -39,7 +39,7 @@ sudo docker-compose run --rm server create_db
 sudo docker-compose run --rm server manage users create_root --password ${REDASH_ADMIN_PASSWORD} ${DEFAULT_EMAIL} admin 
 
 ## Retrieve the API Key from the first user we created
-ADMIN_API_KEY=$(docker-compose run --rm postgres psql -d $REDASH_DATABASE_URL -c "SELECT api_key FROM public.users" | sed -n '3 p' | awk '{$1=$1};1')
+ADMIN_API_KEY=$(docker-compose run --rm postgres psql -d $REDASH_DATABASE_URL -c "SELECT api_key FROM public.users" | sed -n '3 p' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
 ## Run server manage entrypoint. This runs
 ## /app/manage.py manage ds new --type pg --options 
@@ -53,7 +53,8 @@ DATASOURCE_OPTIONS_JSON_STRING=$(printf "$DATASOURCE_OPTIONS_JSON_FMT" $POSTGRES
 sudo docker-compose run --rm server manage ds new --type pg --options ${DATASOURCE_OPTIONS_JSON_STRING} "battery_archive"
 
 ## Add all of the pre-built queries now
-sudo python3 scripts/redash_queries/query_import.py --api-key=$ADMIN_API_KEY --redash-url=$HOST_IP_ADDRESS
+##sudo python3 scripts/redash_queries/query_import.py --api-key=$ADMIN_API_KEY --redash-url=$HOST_IP_ADDRESS
+(cd scripts/redash_queries; sudo python3 query_import.py --api-key=$ADMIN_API_KEY --redash-url=http://$HOST_IP_ADDRESS)
 
 ## Run the composed stack
 sudo docker-compose up -d 
