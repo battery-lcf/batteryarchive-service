@@ -9,3 +9,4 @@ tests/test-data/tmp/
 *.db
 .pytest_cache
 .devcontainer
+*MACCOR_example.txt_df

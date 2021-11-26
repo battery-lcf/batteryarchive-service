@@ -40,6 +40,7 @@ def db_session(db_session_factory):
 def test_generate_cycle_data(db_session):
     output_file = tmpBasePath + "cell_id_cycle_data.csv"
     cell_id = "cell_id"
+    print("CYCLE DATA TEST START")
     new_CycleData = CycleMeta(cell_id=cell_id,
                               temperature=1,
                               v_max=1,
@@ -95,20 +96,30 @@ def test_add_abuse_cells_to_database(db_session):
 
 def test_add_cycle_cells_to_database(db_session):
     cell_lists_path = "/bas/tests/test-data/cycle/"
-    result_path = (
-        "/bas/tests/test-data/cycle/MACCOR_example/MACCOR_example.txt_df"
-    )
+    temp_file_path = (
+        "/bas/tests/test-data/cycle/MACCOR_example/MACCOR_example.txt_df")
     Model.metadata.drop_all(db_session.bind)
     ao = ArchiveOperator(TEST_DB_URL)
     assert ao.add_cells_to_database(cell_lists_path)
-    os.remove(result_path)
+    os.remove(temp_file_path)
 
 
-@pytest.mark.skip(reason="not yet implemented. requires sqlalchemy")
 def test_export_cells(db_session):
-    pass
+    cell_lists_path = "/bas/tests/test-data/cycle/"
+    temp_file_path = (
+        "/bas/tests/test-data/cycle/MACCOR_example/MACCOR_example.txt_df")
+    Model.metadata.drop_all(db_session.bind)
+    ao = ArchiveOperator(TEST_DB_URL)
+    ao.add_cells_to_database(cell_lists_path)
+    ao.export_cells(cell_lists_path, tmpBasePath)
+    assert exists(temp_file_path)
+    os.remove(temp_file_path)
+    assert ~exists(temp_file_path)
 
 
-@pytest.mark.skip(reason="not yet implemented. requires sqlalchemy")
-def test_update_cells():
-    pass
+def test_update_cycle_cells(db_session):
+    cell_lists_path = "/bas/tests/test-data/cycle/"
+    ao = ArchiveOperator(TEST_DB_URL)
+    ao.add_cells_to_database(cell_lists_path)
+    assert ao.update_cycle_cells(cell_lists_path)
+

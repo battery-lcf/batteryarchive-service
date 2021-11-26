@@ -12,7 +12,7 @@ import pandas as pd
 from sqlalchemy.sql.sqltypes import FLOAT
 from converter import (split_metadata, sort_timeseries, calc_cycle_stats,
                        calc_stats)
-
+import data_import as di
 from aio import (read_ornlabuse, read_snlabuse, read_maccor, read_arbin)
 
 from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
@@ -108,12 +108,12 @@ class CycleTimeSeries(Model):
     ah_d = Column(Float, nullable=False)
     e_c = Column(Float, nullable=False)
     e_d = Column(Float, nullable=False)
-    temp_1 = Column(Float, nullable=False)
-    temp_2 = Column(Float, nullable=False)
-    cycle_time = Column(Float, nullable=False)
-    date_time = Column(Float, nullable=False)
-    cycle_index = Column(Integer, nullable=False)
-    test_time = Column(Float, nullable=False)
+    temp_1 = Column(Float, nullable=True)
+    temp_2 = Column(Float, nullable=True)
+    cycle_time = Column(Float, nullable=True)
+    date_time = Column(Float, nullable=True)
+    cycle_index = Column(Integer, nullable=True)
+    test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
 
 
@@ -151,13 +151,10 @@ class ArchiveOperator:
     """
 
     def generate_cycle_data(self, cell_id, path):
-        query = select([
-            CycleMeta.cell_id.label(OUTPUT_LABELS.CELL_ID.value),
-            CycleMeta.v_max.label(OUTPUT_LABELS.MAX_VOLTAGE.value),
-            CycleMeta.v_min.label(OUTPUT_LABELS.MIN_VOLTAGE.value)
-        ])
-        df = pd.read_sql(query, self.session.bind)
-        df = df[df[OUTPUT_LABELS.CELL_ID.value] == cell_id]
+        query = self.session.query(CycleMeta).filter(
+            CycleMeta.cell_id == cell_id)
+        print("QUERY", query)
+        df = pd.read_sql(query.statement, self.session.bind)
         df = df.round(DEGREE)
         return self.export_to_csv(df, cell_id, path, "cycle_data")
 
@@ -204,9 +201,6 @@ class ArchiveOperator:
         df = pd.read_sql(self.session.query(query))
         self.export_to_csv(self.session, df, cell_id, path, "cycle_data")
 
-    def add_cycle_cells_to_database():
-        pass
-
     """
     read_data reads data from all supported tester types
 
@@ -251,27 +245,30 @@ class ArchiveOperator:
                               index=False)
 
             df_ts = self.read_data(cell_id, file_path, tester)
-            df_stats, df_timeseries = calc_stats(df_ts, df_test_meta_md,
-                                                 test_type)
             if test_type == TEST_TYPE.CYCLE.value:
                 df_ts = sort_timeseries(df_ts)
-                df_stats.to_sql(ARCHIVE_TABLE.CYCLE_STATS.value,
-                                con=self.session.bind,
-                                if_exists='append',
-                                chunksize=1000,
-                                index=False)
-                df_timeseries.to_sql(ARCHIVE_TABLE.CYCLE_TS.value,
-                                     con=self.session.bind,
-                                     if_exists='append',
-                                     chunksize=1000,
-                                     index=False)
+                df_stats, df_timeseries = calc_stats(df_ts, df_test_meta_md,
+                                                     test_type)
                 df_test_meta_md.to_sql(ARCHIVE_TABLE.CYCLE_META.value,
                                        con=self.session.bind,
                                        if_exists='append',
                                        chunksize=1000,
                                        index=False)
+                df_timeseries.to_sql(ARCHIVE_TABLE.CYCLE_TS.value,
+                                     con=self.session.bind,
+                                     if_exists='append',
+                                     chunksize=1000,
+                                     index=False)
+                df_stats.to_sql(ARCHIVE_TABLE.CYCLE_STATS.value,
+                                con=self.session.bind,
+                                if_exists='append',
+                                chunksize=1000,
+                                index=False)
+
                 return True
             if test_type == TEST_TYPE.ABUSE.value:
+                df_stats, df_timeseries = calc_stats(df_ts, df_test_meta_md,
+                                                     test_type)
                 df_timeseries.to_sql(ARCHIVE_TABLE.ABUSE_TS.value,
                                      con=self.session.bind,
                                      if_exists='append',
@@ -284,90 +281,49 @@ class ArchiveOperator:
                                        index=False)
                 return True
 
-    def export_cells(self, cell_list, path):
-        df_excel = pd.read_excel(cell_list)
-
+    def export_cells(self, cell_list_path, path):
+        print(cell_list_path)
+        print(path)
+        df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
+        print(df_excel)
         for i in df_excel.index:
+            print("i", i)
             cell_id = df_excel[LABEL.CELL_ID.value][i]
-            query = select([
-                CycleMeta.cell_id.label(OUTPUT_LABELS.CELL_ID.value),
-                CycleMeta.v_max.label(OUTPUT_LABELS.MAX_VOLTAGE.value),
-                CycleMeta.v_min.label(OUTPUT_LABELS.MIN_VOLTAGE.value),
-            ])
-            df = pd.read_sql(query, self.session.bind)
-            df = df[df[OUTPUT_LABELS.CELL_ID.value] == cell_id]
+            print("Cell ID", cell_id)
+            query = self.session.query(CellMeta).filter(
+                CellMeta.cell_id == cell_id)
+            df = pd.read_sql(query.statement, self.session.bind)
+            print("DF", df)
+            df = df[df[LABEL.CELL_ID.value] == cell_id]
             df = df.round(DEGREE)
 
             if not df.empty:
                 self.generate_cycle_data(cell_id, path)
                 self.generate_timeseries_data(cell_id, path)
 
-    def update_cells(self, cell_list):
-        df_excel = pd.read_excel(cell_list)
+    def delete_cell_from_table(self, table, cell_id):
+        self.session.query(table).filter(table.cell_id == cell_id).delete()
+        self.session.commit()
+
+    def delete_cell_from_database(self, cell_id):
+        self.delete_cell_from_table(CellMeta, cell_id)
+        self.delete_cell_from_table(CycleMeta, cell_id)
+        self.delete_cell_from_table(CycleStats, cell_id)
+        self.delete_cell_from_table(CycleTimeSeries, cell_id)
+        self.delete_cell_from_table(AbuseMeta, cell_id)
+        self.delete_cell_from_table(AbuseTimeSeries, cell_id)
+
+    def update_cycle_cells(self, cell_list_path):
+        df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
 
         for i in df_excel.index:
-
             cell_id = df_excel[LABEL.CELL_ID.value][i]
-            query = select([
-                CycleMeta.cell_id.label(OUTPUT_LABELS.CELL_ID.value),
-                CycleMeta.v_max.label(OUTPUT_LABELS.MAX_VOLTAGE.value),
-                CycleMeta.v_min.label(OUTPUT_LABELS.MIN_VOLTAGE.value),
-            ])
-            df = pd.read_sql(query, self.session.bind)
-
+            query = self.session.query(CellMeta).filter(
+                CellMeta.cell_id == cell_id)
+            df = pd.read_sql(query.statement, self.session.bind)
             if df.empty:
-                logging.info("cell:" + cell_id + " not found")
-                return
-
-            df_tmp = df_excel.iloc[i]
-            df_cell_md, df_test_md = split_metadata(df_tmp,
-                                                    TEST_TYPE.CYCLE.value)
-
-            cell_id = df_tmp[OUTPUT_LABELS.CELL_ID.value]
-
-            query = select([
-                CycleTimeSeries.date_time.label(OUTPUT_LABELS.DATE_TIME.value),
-                CycleTimeSeries.test_time.label(OUTPUT_LABELS.TEST_TIME.value),
-                CycleTimeSeries.cycle_index.label(
-                    OUTPUT_LABELS.CYCLE_INDEX.value),
-                CycleTimeSeries.i.label(OUTPUT_LABELS.CURRENT.value),
-                CycleTimeSeries.v.label(OUTPUT_LABELS.VOLTAGE.value),
-                CycleTimeSeries.ah_c.label(
-                    OUTPUT_LABELS.CHARGE_CAPACITY.value),
-                CycleTimeSeries.ah_d.label(
-                    OUTPUT_LABELS.DISCHARGE_CAPACITY.value),
-                CycleTimeSeries.e_c.label(OUTPUT_LABELS.CHARGE_ENERGY.value),
-                CycleTimeSeries.e_d.label(
-                    OUTPUT_LABELS.DISCHARGE_ENERGY.value),
-                CycleTimeSeries.temp_1.label(
-                    OUTPUT_LABELS.ENV_TEMPERATURE.value),
-                CycleTimeSeries.temp_2.label(
-                    OUTPUT_LABELS.CELL_TEMPERATURE.value),
-            ])
-            df_ts = pd.read_sql(query, self.session.bind)
-            df_ts = df_ts[df_ts[OUTPUT_LABELS.CELL_ID.value] == cell_id]
-            df_ts = df_ts.round(DEGREE)
-
-            df_cycle_data, df_timeseries_data = calc_cycle_stats(
-                df_ts, df_cell_md, df_test_md)
-
-            df_cell_md.to_sql(ARCHIVE_TABLE.CELL_META,
-                              con=self.session.bind,
-                              if_exists='append',
-                              chunksize=1000,
-                              index=False)
-            df_test_md.to_sql(ARCHIVE_TABLE.CYCLE_META,
-                              con=self.session.bind,
-                              if_exists='append',
-                              chunksize=1000,
-                              index=False)
-            df_cycle_data.to_sql(ARCHIVE_TABLE.CYCLE_STATS,
-                                 con=self.session.bind,
-                                 if_exists='append',
-                                 chunksize=1000,
-                                 index=False)
-            df_timeseries_data.to_sql(ARCHIVE_TABLE.CYCLE_TS,
-                                      con=self.session.bind,
-                                      if_exists='append',
-                                      chunksize=1000,
-                                      index=False)
+                print("cell:" + cell_id + " not found")
+                continue
+            self.delete_cell_from_database(cell_id)
+        self.add_cells_to_database(cell_list_path)
+        return True

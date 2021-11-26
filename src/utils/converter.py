@@ -1,6 +1,6 @@
 import pandas as pd
-from archive_constants import (LABEL, DEGREE, TEST_TYPE, SLASH,
-                               CELL_LIST_FILE_NAME)
+from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
+                               SLASH, ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
 
 
 def extract_cell_metdata(df_c_md):
@@ -19,8 +19,6 @@ def extract_cell_metdata(df_c_md):
 
 
 def split_metadata(df_c_md, test_type):
-    print("TEST TYPE", test_type, TEST_TYPE.CYCLE.value,
-          test_type == TEST_TYPE.CYCLE.value)
     if test_type == TEST_TYPE.CYCLE.value:
         A, B = split_cycle_metadata(df_c_md)
         print("A", A)
@@ -73,7 +71,8 @@ def sort_timeseries(df_tmerge):
 
     if not df_tmerge.empty:
 
-        df_t = df_tmerge.sort_values(by=['date_time', 'test_time'])
+        df_t = df_tmerge.sort_values(
+            by=[LABEL.DATE_TIME.value, LABEL.TEST_TIME.value])
         df_t = df_t.reset_index(drop=True)
 
         cycles = df_t[[
@@ -154,56 +153,61 @@ def calc_abuse_stats(df_t, df_test_md):
 
 def calc_cycle_stats(df_t):
 
-    df_t['cycle_time'] = 0
+    df_t[LABEL.CYCLE_TIME.value] = 0
 
-    no_cycles = int(df_t['cycle_index'].max())
+    no_cycles = int(df_t[LABEL.CYCLE_INDEX.value].max())
 
     # Initialize the cycle_data time frame
     a = [0 for _ in range(no_cycles)]  # using loops
 
-    df_c = pd.DataFrame(data=a, columns=["cycle_index"])
+    df_c = pd.DataFrame(data=a, columns=[LABEL.CYCLE_INDEX.value])
 
-    df_c['cell_id'] = df_t['cell_id']
-    df_c['cycle_index'] = 0
-    df_c['v_max'] = 0
-    df_c['i_max'] = 0
-    df_c['v_min'] = 0
-    df_c['i_min'] = 0
-    df_c['ah_c'] = 0
-    df_c['ah_d'] = 0
-    df_c['e_c'] = 0
-    df_c['e_d'] = 0
-    df_c['v_c_mean'] = 0
-    df_c['v_d_mean'] = 0
-    df_c['test_time'] = 0
-    df_c['ah_eff'] = 0
-    df_c['e_eff'] = 0
+    df_c[LABEL.CELL_ID.value] = df_t[LABEL.CELL_ID.value]
+    df_c[LABEL.CYCLE_INDEX.value] = 0
+    df_c[LABEL.V_MAX.value] = 0
+    df_c[LABEL.I_MAX.value] = 0
+    df_c[LABEL.V_MIN.value] = 0
+    df_c[LABEL.I_MIN.value] = 0
+    df_c[LABEL.AH_C.value] = 0
+    df_c[LABEL.AH_D.value] = 0
+    df_c[LABEL.E_C.value] = 0
+    df_c[LABEL.E_D.value] = 0
+    df_c[LABEL.V_C_MEAN.value] = 0
+    df_c[LABEL.V_D_MEAN.value] = 0
+    df_c[LABEL.TEST_TIME.value] = 0
+    df_c[LABEL.AH_EFF.value] = 0
+    df_c[LABEL.E_EFF.value] = 0
 
     for c_ind in df_c.index:
         x = c_ind + 1
 
-        df_f = df_t[df_t['cycle_index'] == x]
+        df_f = df_t[df_t[LABEL.CYCLE_INDEX.value] == x]
 
-        df_f['ah_c'] = 0
-        df_f['e_c'] = 0
-        df_f['ah_d'] = 0
-        df_f['e_d'] = 0
+        df_f[LABEL.AH_C.value] = 0
+        df_f[LABEL.E_C.value] = 0
+        df_f[LABEL.AH_D.value] = 0
+        df_f[LABEL.E_D.value] = 0
 
         if not df_f.empty:
 
             try:
 
-                df_c.iloc[c_ind, df_c.columns.get_loc('cycle_index')] = x
+                df_c.iloc[c_ind,
+                          df_c.columns.get_loc(LABEL.CYCLE_INDEX.value)] = x
 
-                df_c.iloc[c_ind, df_c.columns.get_loc('v_max')] = df_f.loc[
-                    df_f['v'].idxmax()].v
-                df_c.iloc[c_ind, df_c.columns.get_loc('v_min')] = df_f.loc[
-                    df_f['v'].idxmin()].v
+                df_c.iloc[c_ind,
+                          df_c.columns.get_loc(LABEL.V_MAX.value)] = df_f.loc[
+                              df_f['v'].idxmax()].v
+                df_c.iloc[c_ind,
+                          df_c.columns.get_loc(LABEL.V_MIN.value)] = df_f.loc[
+                              df_f['v'].idxmin()].v
 
-                df_c.iloc[c_ind, df_c.columns.get_loc('i_max')] = df_f.loc[
-                    df_f['i'].idxmax()].i
-                df_c.iloc[c_ind, df_c.columns.get_loc('i_min')] = df_f.loc[
-                    df_f['i'].idxmin()].i
+                df_c.iloc[c_ind,
+                          df_c.columns.get_loc(LABEL.I_MAX.value)] = df_f.loc[
+                              df_f['i'].idxmax()].i
+                df_c.iloc[c_ind,
+                          df_c.columns.get_loc(LABEL.I_MIN.value)] = df_f.loc[
+                              df_f['i'].idxmin()].i
 
                 df_c.iloc[c_ind, df_c.columns.get_loc('test_time')] = df_f.loc[
                     df_f['test_time'].idxmax()].test_time
@@ -212,7 +216,6 @@ def calc_cycle_stats(df_t):
                 df_f_c = df_f[df_f['i'] > 0]
                 df_f_d = df_f[df_f['i'] < 0]
 
-                print("cycle index=" + str(x))
                 df_f = calc_cycle_quantities(df_f)
 
                 df_t.loc[df_t.cycle_index == x,
@@ -253,9 +256,8 @@ def calc_cycle_stats(df_t):
             except Exception as e:
                 pass
 
-    df_cc = df_c[df_c['cycle_index'] > 0]
-    df_tt = df_t[df_t['cycle_index'] > 0]
-
+    df_cc = df_c[df_c[LABEL.CYCLE_INDEX.value] > 0]
+    df_tt = df_t[df_t[LABEL.CYCLE_INDEX.value] > 0]
     return df_cc, df_tt
 
 
@@ -295,12 +297,12 @@ def calc_cycle_quantities(df):
 
             if x[1] <= 0:
                 x[5] = (x[0] - last_time) * (x[1] + last_i_d) * 0.5 + last_ah_d
-                if x[5] == 0:
-                    print("x5=0:" + str(x[5]) + " last_ah_d: " +
-                          str(last_ah_d))
-                if last_ah_d == 0:
-                    print("x5:" + str(x[5]) + " last_ah_d=0: " +
-                          str(last_ah_d))
+                # if x[5] == 0:
+                #     print("x5=0:" + str(x[5]) + " last_ah_d: " +
+                #           str(last_ah_d))
+                # if last_ah_d == 0:
+                #     print("x5:" + str(x[5]) + " last_ah_d=0: " +
+                #           str(last_ah_d))
                 x[6] = (x[0] - last_time) * (x[1] + last_i_d) * 0.5 * (
                     x[2] + last_v_d) * 0.5 + last_e_d
                 last_i_d = x[1]
