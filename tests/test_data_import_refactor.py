@@ -1,7 +1,7 @@
 from app.archive_constants import TEST_TYPE, TESTER
 from converter import (calc_cycle_quantities, calc_cycle_stats,
                        calc_abuse_stats, sort_timeseries, split_abuse_metadata)
-from aio import CellTestReader, prepare_maccor_file, listToString, signedCurrent
+from aio import CellTestReader, listToString, signedCurrent
 import pandas as pd
 import os
 
@@ -145,7 +145,7 @@ def test_prepare_maccor_file():
     result_path = (
         "/bas/data/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt_df"
     )
-    cellpath_df = prepare_maccor_file(maccor_file)
+    cellpath_df = CellTestReader(TESTER.MACCOR, TEST_TYPE.CYCLE).prepare_maccor_file(maccor_file)
     assert cellpath_df == result_path
     assert os.path.exists(cellpath_df)
     os.remove(cellpath_df)

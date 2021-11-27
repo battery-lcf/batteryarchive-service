@@ -7,7 +7,6 @@ from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
                                SLASH, ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
 from converter import (sort_timeseries)
 
-
 class CellTestReader:
     def __init__(self, tester, test_type):
         self.tester = tester
@@ -182,7 +181,7 @@ class CellTestReader:
 
             if os.path.exists(cellpath):
 
-                cellpath_df = prepare_maccor_file(cellpath)
+                cellpath_df = CellTestReader(TESTER.MACCOR, TEST_TYPE.CYCLE).prepare_maccor_file(cellpath)
 
                 df_cell = pd.read_csv(cellpath_df, sep='\t')
                 # Find the time series sheet in the excel file
@@ -309,6 +308,29 @@ class CellTestReader:
                 df_tmerge = df_tmerge.append(df_time_series, ignore_index=True)
 
         return df_tmerge
+    
+    # remove metadata entries from MACCOR files
+    @staticmethod
+    def prepare_maccor_file(cellpath):
+
+        a_file = open(cellpath, "r", encoding='utf8', errors='ignore')
+        lines = a_file.readlines()
+        a_file.close()
+        
+        cellpath_df = cellpath + "_df"
+
+        new_file = open(cellpath_df, "w")
+        for line in lines:
+            forget_line = line.startswith("Today") or line.startswith(
+                "Filename") or line.startswith("Procedure") or line.startswith(
+                    "Comment")
+
+            if not forget_line:
+                new_file.write(line)
+
+        new_file.close()
+
+        return cellpath_df
 
 
 class ArchiveWriter:
@@ -328,6 +350,15 @@ class ArchiveWriter:
         cell_id_to_file = cell_id.replace(r"/", "-")
         csv_file = path + cell_id_to_file + "_" + suffix + ".csv"
         df.to_csv(csv_file, encoding="utf-8", index=False)
+        return csv_file
+
+    @staticmethod
+    def write_cell_to_csv(cell, path, suffix):
+        cell_id_to_file = cell.cell_id.replace(r"/", "-")
+        csv_file = path + cell_id_to_file + "_" + suffix + ".csv"
+        if ~cell.data:
+            return "No Data" #raise No Cell Data Exception
+        cell.data.to_csv(csv_file, encoding="utf-8", index=False)
         return csv_file
 
 
@@ -352,33 +383,7 @@ def signedCurrent(x, y):
         return y
 
 
-# remove metadata entries from MACCOR files
-def prepare_maccor_file(cellpath):
 
-    a_file = open(cellpath, "r", encoding='utf8', errors='ignore')
-    lines = a_file.readlines()
-    a_file.close()
-
-    #a_file = open(cellpath, "rb").read().decode('ISO-8859-1')
-    #print(a_file)
-    #lines = a_file.readlines()
-    #lines = a_file
-    #a_file.close()
-
-    cellpath_df = cellpath + "_df"
-
-    new_file = open(cellpath_df, "w")
-    for line in lines:
-        forget_line = line.startswith("Today") or line.startswith(
-            "Filename") or line.startswith("Procedure") or line.startswith(
-                "Comment")
-
-        if not forget_line:
-            new_file.write(line)
-
-    new_file.close()
-
-    return cellpath_df
 
 
 

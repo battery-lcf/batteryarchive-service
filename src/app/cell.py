@@ -13,11 +13,11 @@ class TestTypeException(Exception):
 class Cell:
     def __init__(self,
                  cell_id,
-                 test_type,
-                 file_id,
-                 tester,
-                 file_path,
-                 metadata,
+                 test_type=None,
+                 file_id=None,
+                 tester=None,
+                 file_path=None,
+                 metadata=None,
                  data=None):
         assert self.is_supported_test_type(
             test_type), test_type + ": Unrecognized Test Type"

@@ -12,10 +12,9 @@ from sqlalchemy.sql.sqltypes import FLOAT
 from cell import Cell
 from aio import ArchiveWriter
 from archive_constants import (LABEL, DEGREE, OUTPUT_LABELS, SLASH,
-                               ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
+                               ARCHIVE_TABLE, CELL_LIST_FILE_NAME, TEST_DB_URL)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from server import app
 
 Model = declarative_base()
 
@@ -123,9 +122,7 @@ Archive Operator
 
 
 class ArchiveOperator:
-    def __init__(self,
-                 url=app.config['DATABASE_URI'],
-                 config=app.config['DATABASE_CONNECT_OPTIONS']):
+    def __init__(self, url=TEST_DB_URL, config={}):
         engine = create_engine(url, **config)
         Model.metadata.create_all(engine)
         self.session = scoped_session(
@@ -230,13 +227,9 @@ class ArchiveOperator:
     :return: Boolean True if method succeeds False if method fails
     """
 
-    def generate_cycle_data(self, cell_id, path):
+    def generate_cycle_data(self, cell_id: str, path: str):
         df = self.read_cycle_metadata(cell_id)
         return ArchiveWriter.write_to_csv(df, cell_id, path, "cycle_data")
-
-    # def generate_cycle_data(self, cell:Cell, path):
-    #     df = self.read_celltest_metadata(cell)
-    #     return ArchiveWriter.write_to_csv(df, cell.cell_id, path, "cycle_data")
 
     """
     generate_timeseries_data queries data from the database and exports to csv

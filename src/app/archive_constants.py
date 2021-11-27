@@ -5,7 +5,6 @@ SLASH = "/"
 DEGREE = 3
 CELL_LIST_FILE_NAME = "cell_list.xlsx"
 
-
 class TEST_TYPE(Enum):
     ABUSE = "abuse"
     CYCLE = "cycle"
