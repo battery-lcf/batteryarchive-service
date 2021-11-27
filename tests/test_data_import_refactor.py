@@ -1,6 +1,6 @@
 from converter import (calc_cycle_quantities, calc_cycle_stats,
                        calc_abuse_stats, sort_timeseries, split_abuse_metadata)
-from aio import read_snlabuse, read_ornlabuse, read_arbin, read_maccor, prepare_maccor_file, listToString, signedCurrent
+from readers import read_snlabuse, read_ornlabuse, read_arbin, read_maccor, prepare_maccor_file, listToString, signedCurrent
 import pandas as pd
 import os
 

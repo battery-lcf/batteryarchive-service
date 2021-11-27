@@ -7,14 +7,9 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy.ext.declarative import declarative_base
-import logging
 import pandas as pd
 from sqlalchemy.sql.sqltypes import FLOAT
-from converter import (split_metadata, sort_timeseries, calc_cycle_stats,
-                       calc_stats)
-import data_import as di
-from aio import (read_ornlabuse, read_snlabuse, read_maccor, read_arbin)
-
+from cell import Cell
 from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
                                SLASH, ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
 from sqlalchemy import create_engine
@@ -153,7 +148,6 @@ class ArchiveOperator:
     def generate_cycle_data(self, cell_id, path):
         query = self.session.query(CycleMeta).filter(
             CycleMeta.cell_id == cell_id)
-        print("QUERY", query)
         df = pd.read_sql(query.statement, self.session.bind)
         df = df.round(DEGREE)
         return self.export_to_csv(df, cell_id, path, "cycle_data")
@@ -188,7 +182,6 @@ class ArchiveOperator:
     """
     output_cycle_series_to_csv adds cells defined in cell_list and add
 
-    :param session: Database session that 
     :param cell_id: Absolute Path to the cell_list directory
     :param path: Path to the cell_list directory
     :return: Boolean True if successful False if method fails
@@ -201,99 +194,67 @@ class ArchiveOperator:
         df = pd.read_sql(self.session.query(query))
         self.export_to_csv(self.session, df, cell_id, path, "cycle_data")
 
-    """
-    read_data reads data from all supported tester types
 
-    :param cell_id: Unique Cell Identifier
-    :param file_path: Absolute Path to the file that is to be read
-    :param tester: String identifier of what tester type is being read
-    :return: DataFrame with data from reader
-    """
+    def write_cell_to_db(self, cell):
+        df_cell_md = cell.cellmeta
+        df_test_meta_md = cell.testmeta
+        df_stats, df_timeseries = cell.calc_stats()
+        df_cell_md.to_sql(cell.cell_meta_table,
+                          con=self.session.bind,
+                          if_exists="append",
+                          chunksize=1000,
+                          index=False)
+        df_timeseries.to_sql(cell.test_ts_table,
+                             con=self.session.bind,
+                             if_exists='append',
+                             chunksize=1000,
+                             index=False)
+        df_test_meta_md.to_sql(cell.test_meta_table,
+                               con=self.session.bind,
+                               if_exists='append',
+                               chunksize=1000,
+                               index=False)
+        if cell.test_stats_table:
+            df_stats.to_sql(ARCHIVE_TABLE.CYCLE_STATS.value,
+                            con=self.session.bind,
+                            if_exists='append',
+                            chunksize=1000,
+                            index=False)
 
-    def read_data(self, cell_id, file_path, tester):
-        if tester == TESTER.ARBIN.value:
-            return read_arbin(cell_id, file_path)
-        if tester == TESTER.MACCOR.value:
-            return read_maccor(cell_id, file_path)
-        if tester == TESTER.ORNL.value:
-            return read_ornlabuse(cell_id, file_path)
-        if tester == TESTER.SNL.value:
-            return read_snlabuse(cell_id, file_path)
+    def add_cells_to_db(self, cell_list):
+        for cell in cell_list:
+            self.write_cell_to_db(cell)
+            return True
 
     """
-    add_cells_to_database adds cells defined in cell_list and add
+    add_cells_xls_to_db adds cells in excel file at cell_list_path to database
 
     :param session: Database session that 
     :param cell_list_path: Path to the cell_list directory
     :return: Boolean True if successful False if method fails
     """
 
-    def add_cells_to_database(self, cell_list_path):
+    def add_cells_xls_to_db(self, cell_list_path):
         df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
+        cells = []
         for i in df_excel.index:
-            df_tmp = df_excel.iloc[i]
-            test_type = str(df_excel[LABEL.TEST.value][i])
-            cell_id = df_excel[LABEL.CELL_ID.value][i]
-            file_id = df_excel[LABEL.FILE_ID.value][i]
-            tester = df_excel[LABEL.TESTER.value][i]
-            file_path = cell_list_path + file_id + SLASH
-            df_cell_md, df_test_meta_md = split_metadata(df_tmp, test_type)
-            df_cell_md.to_sql(ARCHIVE_TABLE.CELL_META.value,
-                              con=self.session.bind,
-                              if_exists="append",
-                              chunksize=1000,
-                              index=False)
-
-            df_ts = self.read_data(cell_id, file_path, tester)
-            if test_type == TEST_TYPE.CYCLE.value:
-                df_ts = sort_timeseries(df_ts)
-                df_stats, df_timeseries = calc_stats(df_ts, df_test_meta_md,
-                                                     test_type)
-                df_test_meta_md.to_sql(ARCHIVE_TABLE.CYCLE_META.value,
-                                       con=self.session.bind,
-                                       if_exists='append',
-                                       chunksize=1000,
-                                       index=False)
-                df_timeseries.to_sql(ARCHIVE_TABLE.CYCLE_TS.value,
-                                     con=self.session.bind,
-                                     if_exists='append',
-                                     chunksize=1000,
-                                     index=False)
-                df_stats.to_sql(ARCHIVE_TABLE.CYCLE_STATS.value,
-                                con=self.session.bind,
-                                if_exists='append',
-                                chunksize=1000,
-                                index=False)
-
-                return True
-            if test_type == TEST_TYPE.ABUSE.value:
-                df_stats, df_timeseries = calc_stats(df_ts, df_test_meta_md,
-                                                     test_type)
-                df_timeseries.to_sql(ARCHIVE_TABLE.ABUSE_TS.value,
-                                     con=self.session.bind,
-                                     if_exists='append',
-                                     chunksize=1000,
-                                     index=False)
-                df_test_meta_md.to_sql(ARCHIVE_TABLE.ABUSE_META.value,
-                                       con=self.session.bind,
-                                       if_exists='append',
-                                       chunksize=1000,
-                                       index=False)
-                return True
+            cell = Cell(cell_id=df_excel[LABEL.CELL_ID.value][i],
+                        test_type=str(df_excel[LABEL.TEST.value][i]),
+                        file_id=df_excel[LABEL.FILE_ID.value][i],
+                        tester=df_excel[LABEL.TESTER.value][i],
+                        file_path=cell_list_path +
+                        df_excel[LABEL.FILE_ID.value][i] + SLASH,
+                        metadata=df_excel.iloc[i])
+            cells.append(cell)
+        return self.add_cells_to_db(cells)
 
     def export_cells(self, cell_list_path, path):
-        print(cell_list_path)
-        print(path)
         df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
-        print(df_excel)
         for i in df_excel.index:
-            print("i", i)
             cell_id = df_excel[LABEL.CELL_ID.value][i]
-            print("Cell ID", cell_id)
             query = self.session.query(CellMeta).filter(
                 CellMeta.cell_id == cell_id)
             df = pd.read_sql(query.statement, self.session.bind)
-            print("DF", df)
             df = df[df[LABEL.CELL_ID.value] == cell_id]
             df = df.round(DEGREE)
 
@@ -325,5 +286,5 @@ class ArchiveOperator:
                 print("cell:" + cell_id + " not found")
                 continue
             self.delete_cell_from_database(cell_id)
-        self.add_cells_to_database(cell_list_path)
+        self.add_cells_xls_to_db(cell_list_path)
         return True

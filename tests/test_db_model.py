@@ -1,4 +1,3 @@
-import pandas as pd
 import os
 from os.path import exists
 import pytest
@@ -55,6 +54,7 @@ def test_generate_cycle_data(db_session):
     ao.generate_cycle_data(cell_id, tmpBasePath)
     assert exists(output_file)
     db_session.delete(new_CycleData)
+    db_session.commit()
     os.remove(output_file)
     assert ~exists(output_file)
 
@@ -83,6 +83,7 @@ def test_generate_timeseries_data(db_session):
     ao.generate_timeseries_data(cell_id, tmpBasePath)
     assert exists(output_file)
     db_session.delete(new_Timeseries)
+    db_session.commit()
     os.remove(output_file)
     assert ~exists(output_file)
 
@@ -91,7 +92,7 @@ def test_add_abuse_cells_to_database(db_session):
     cell_lists_path = "/bas/tests/test-data/abuse/"
     Model.metadata.drop_all(db_session.bind)
     ao = ArchiveOperator(TEST_DB_URL)
-    assert ao.add_cells_to_database(cell_lists_path)
+    assert ao.add_cells_xls_to_db(cell_lists_path)
 
 
 def test_add_cycle_cells_to_database(db_session):
@@ -100,7 +101,7 @@ def test_add_cycle_cells_to_database(db_session):
         "/bas/tests/test-data/cycle/MACCOR_example/MACCOR_example.txt_df")
     Model.metadata.drop_all(db_session.bind)
     ao = ArchiveOperator(TEST_DB_URL)
-    assert ao.add_cells_to_database(cell_lists_path)
+    assert ao.add_cells_xls_to_db(cell_lists_path)
     os.remove(temp_file_path)
 
 
@@ -110,7 +111,7 @@ def test_export_cells(db_session):
         "/bas/tests/test-data/cycle/MACCOR_example/MACCOR_example.txt_df")
     Model.metadata.drop_all(db_session.bind)
     ao = ArchiveOperator(TEST_DB_URL)
-    ao.add_cells_to_database(cell_lists_path)
+    ao.add_cells_xls_to_db(cell_lists_path)
     ao.export_cells(cell_lists_path, tmpBasePath)
     assert exists(temp_file_path)
     os.remove(temp_file_path)
@@ -120,6 +121,6 @@ def test_export_cells(db_session):
 def test_update_cycle_cells(db_session):
     cell_lists_path = "/bas/tests/test-data/cycle/"
     ao = ArchiveOperator(TEST_DB_URL)
-    ao.add_cells_to_database(cell_lists_path)
+    ao.add_cells_xls_to_db(cell_lists_path)
     assert ao.update_cycle_cells(cell_lists_path)
 

@@ -1,6 +1,5 @@
 import pandas as pd
-from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
-                               SLASH, ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
+from archive_constants import (LABEL, TEST_TYPE)
 
 
 def extract_cell_metdata(df_c_md):
@@ -18,19 +17,6 @@ def extract_cell_metdata(df_c_md):
     return df_cell_md
 
 
-def split_metadata(df_c_md, test_type):
-    if test_type == TEST_TYPE.CYCLE.value:
-        A, B = split_cycle_metadata(df_c_md)
-        print("A", A)
-        print("B", B)
-        return A, B
-    if test_type == TEST_TYPE.ABUSE.value:
-        A, B = split_abuse_metadata(df_c_md)
-        print("A", A)
-        print("B", B)
-        return A, B
-
-
 def split_cycle_metadata(df_c_md):
 
     df_cell_md = extract_cell_metdata(df_c_md)
@@ -46,7 +32,6 @@ def split_cycle_metadata(df_c_md):
 
     return df_cell_md, df_test_md
 
-
 def split_abuse_metadata(df_c_md):
 
     df_cell_md = extract_cell_metdata(df_c_md)
@@ -61,8 +46,7 @@ def split_abuse_metadata(df_c_md):
     df_test_md[LABEL.TEMP.value] = [df_c_md[LABEL.TEMP.value]]
 
     return df_cell_md, df_test_md
-
-
+    
 # sort data imported to insure cycle index and test times are correctly calculated
 def sort_timeseries(df_tmerge):
     # Arrange the data by date time first, then by test time
@@ -129,14 +113,6 @@ def sort_timeseries(df_tmerge):
         df_ts.drop('cycle_index_file', axis=1, inplace=True)
 
         return df_ts
-
-
-# calculate statistics for data
-def calc_stats(df_t, df_test_md, test_type):
-    if test_type == TEST_TYPE.CYCLE.value:
-        return calc_cycle_stats(df_t)
-    if test_type == TEST_TYPE.ABUSE.value:
-        return None, calc_abuse_stats(df_t, df_test_md)
 
 
 # calculate statistics for abuse test
