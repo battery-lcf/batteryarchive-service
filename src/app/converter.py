@@ -1,7 +1,11 @@
 import pandas as pd
 from archive_constants import (LABEL, TEST_TYPE)
+import warnings
+from pandas.core.common import SettingWithCopyWarning
 
+pd.set_option('mode.chained_assignment',None)
 
+warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 def extract_cell_metdata(df_c_md):
     """ Build cell metadata """
     df_cell_md = pd.DataFrame()

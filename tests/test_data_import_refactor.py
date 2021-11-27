@@ -1,6 +1,7 @@
+from app.archive_constants import TEST_TYPE, TESTER
 from converter import (calc_cycle_quantities, calc_cycle_stats,
                        calc_abuse_stats, sort_timeseries, split_abuse_metadata)
-from readers import read_snlabuse, read_ornlabuse, read_arbin, read_maccor, prepare_maccor_file, listToString, signedCurrent
+from aio import CellTestReader, prepare_maccor_file, listToString, signedCurrent
 import pandas as pd
 import os
 
@@ -159,7 +160,7 @@ def test_signedCurrent():
 def test_read_ornlabuse():
     cell_id = "S1Abuse"
     file_path = "/bas/tests/test-data/abuse-ornl/"
-    output_df = read_ornlabuse(cell_id, file_path)
+    output_df = CellTestReader(TESTER.ORNL, TEST_TYPE.ABUSE).read_ornlabuse(file_path)
     result_df_cols = [
         "test_time",
         "axial_d",
@@ -171,7 +172,6 @@ def test_read_ornlabuse():
         "temp_4",
         "temp_5",
         "temp_6",
-        "cell_id",
     ]
     result_df = [
         {
@@ -185,7 +185,6 @@ def test_read_ornlabuse():
             "temp_4": 0.00,
             "temp_5": 0.00,
             "temp_6": 0.00,
-            "cell_id": cell_id,
         },
         {
             "test_time": 0.046,
@@ -198,7 +197,6 @@ def test_read_ornlabuse():
             "temp_4": 0.00,
             "temp_5": 0.00,
             "temp_6": 0.00,
-            "cell_id": cell_id,
         },
         {
             "test_time": 0.000,
@@ -211,7 +209,6 @@ def test_read_ornlabuse():
             "temp_4": 22.03,
             "temp_5": 22.08,
             "temp_6": 22.58,
-            "cell_id": cell_id,
         },
         {
             "test_time": 0.500,
@@ -224,7 +221,6 @@ def test_read_ornlabuse():
             "temp_4": 22.07,
             "temp_5": 22.12,
             "temp_6": 22.62,
-            "cell_id": cell_id,
         },
     ]
     result_pd_df = pd.DataFrame(data=result_df, columns=result_df_cols)
@@ -236,7 +232,7 @@ def test_read_ornlabuse():
 def test_read_snlabuse():
     cell_id = "S2Abuse"
     file_path = "/bas/tests/test-data/abuse-snl/"
-    output_df = read_snlabuse(cell_id, file_path)
+    output_df = CellTestReader(TESTER.SNL, TEST_TYPE.ABUSE).read_snlabuse(file_path)
     result_df_cols = [
         "test_time",
         "axial_d",
@@ -248,7 +244,6 @@ def test_read_snlabuse():
         "temp_4",
         "temp_5",
         "temp_6",
-        "cell_id",
     ]
     result_df = [
         {
@@ -262,7 +257,6 @@ def test_read_snlabuse():
             "temp_4": 20.1,
             "temp_5": 20.2,
             "temp_6": 20.1,
-            "cell_id": cell_id,
         },
         {
             "test_time": 2.06,
@@ -275,7 +269,6 @@ def test_read_snlabuse():
             "temp_4": 20.1,
             "temp_5": 20.2,
             "temp_6": 20.1,
-            "cell_id": cell_id,
         },
     ]
     result_pd_df = pd.DataFrame(data=result_df, columns=result_df_cols)
@@ -286,7 +279,7 @@ def test_read_snlabuse():
 def test_read_maccor():
     cell_id = "maccor"
     maccor_file = "/bas/data/data_set_samples/cycle/MACCOR_example/"
-    df_output = read_maccor(cell_id, maccor_file)
+    df_output = CellTestReader(TESTER.MACCOR, TEST_TYPE.CYCLE).read_maccor(maccor_file)
     assert len(df_output) == 4699
     os.remove(maccor_file + "MACCOR_example.txt_df")
 
@@ -294,7 +287,7 @@ def test_read_maccor():
 def test_read_arbin():
     cell_id = "arbin"
     arbin_file = "/bas/tests/test-data/cycle-arbin/"
-    df_output = read_arbin(cell_id, arbin_file)
+    df_output = CellTestReader(TESTER.ARBIN, TEST_TYPE.CYCLE).read_arbin(arbin_file)
     assert len(df_output) == 119
 
 

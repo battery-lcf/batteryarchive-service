@@ -3,7 +3,7 @@ from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
                                SLASH, ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
 from converter import (split_cycle_metadata, split_abuse_metadata,
                        sort_timeseries, calc_cycle_stats, calc_abuse_stats)
-from readers import (read_ornlabuse, read_snlabuse, read_maccor, read_arbin)
+from aio import CellTestReader
 
 
 class TestTypeException(Exception):
@@ -11,10 +11,16 @@ class TestTypeException(Exception):
 
 
 class Cell:
-    def __init__(self, cell_id, test_type, file_id, tester, file_path,
-                 metadata):
+    def __init__(self,
+                 cell_id,
+                 test_type,
+                 file_id,
+                 tester,
+                 file_path,
+                 metadata,
+                 data=None):
         assert self.is_supported_test_type(
-                test_type), test_type + ": Unrecognized Test Type"
+            test_type), test_type + ": Unrecognized Test Type"
         self.cell_id = cell_id
         self.test_type = test_type
         self.file_id = file_id
@@ -31,6 +37,13 @@ class Cell:
             self.test_ts_table = ARCHIVE_TABLE.CYCLE_TS.value
             self.test_meta_table = ARCHIVE_TABLE.CYCLE_META.value
             self.test_stats_table = ARCHIVE_TABLE.CYCLE_STATS.value
+        self.data = data
+
+    def load_data(self):
+        ctr = CellTestReader(self.tester, self.test_type)
+        self.data = ctr.read_data(self.file_path)
+        self.data[LABEL.CELL_ID.value] = self.cell_id
+        return self
 
     def is_supported_test_type(self, test_type):
         for T in TEST_TYPE:
@@ -49,31 +62,7 @@ class Cell:
 
     # calculate statistics for testdata
     def calc_stats(self):
-        df_t = self.read_data()
         if self.test_type == TEST_TYPE.CYCLE.value:
-            return calc_cycle_stats(df_t)
+            return calc_cycle_stats(self.data)
         if self.test_type == TEST_TYPE.ABUSE.value:
-            return None, calc_abuse_stats(df_t, self.testmeta)
-
-    """
-    read_data reads data from all supported tester types
-
-    :param cell_id: Unique Cell Identifier
-    :param file_path: Absolute Path to the file that is to be read
-    :param tester: String identifier of what tester type is being read
-    :return: DataFrame with data from reader
-    """
-
-    def read_data(self):
-        if self.tester == TESTER.ARBIN.value:
-            data = read_arbin(self.cell_id, self.file_path)
-        if self.tester == TESTER.MACCOR.value:
-            data = read_maccor(self.cell_id, self.file_path)
-        if self.tester == TESTER.ORNL.value:
-            data = read_ornlabuse(self.cell_id, self.file_path)
-        if self.tester == TESTER.SNL.value:
-            data = read_snlabuse(self.cell_id, self.file_path)
-        if self.test_type == TEST_TYPE.CYCLE.value:
-            return sort_timeseries(data)
-        else:
-            return data
+            return None, calc_abuse_stats(self.data, self.testmeta)
