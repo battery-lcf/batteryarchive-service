@@ -255,12 +255,12 @@ def read_ornlabuse(cell_id, file_path):
         df_time_series_a['axial_d'] = df_time_series_file['Axial Displacement']
         df_time_series_a['v'] = df_time_series_file['Analog 1']
         df_time_series_a['axial_f'] = df_time_series_file['Axial Force']
-        df_time_series_a['temp_1'] = 0
-        df_time_series_a['temp_2'] = 0
-        df_time_series_a['temp_3'] = 0
-        df_time_series_a['temp_4'] = 0
-        df_time_series_a['temp_5'] = 0
-        df_time_series_a['temp_6'] = 0
+        df_time_series_a['pos_terminal_temperature'] = 0
+        df_time_series_a['neg_terminal_temperature'] = 0
+        df_time_series_a['left_bottom_temperature'] = 0
+        df_time_series_a['right_bottom_temperature'] = 0
+        df_time_series_a['above_punch_temperature'] = 0
+        df_time_series_a['below_punch_temperature'] = 0
         df_time_series_a['cell_id'] = cell_id
 
         df_time_series_b = pd.DataFrame()
@@ -268,12 +268,12 @@ def read_ornlabuse(cell_id, file_path):
         df_time_series_b['axial_d'] = 0
         df_time_series_b['v'] = 0
         df_time_series_b['axial_f'] = 0
-        df_time_series_b['temp_1'] = df_time_series_file['TC 01']
-        df_time_series_b['temp_2'] = df_time_series_file['TC 02']
-        df_time_series_b['temp_3'] = df_time_series_file['TC 03']
-        df_time_series_b['temp_4'] = df_time_series_file['TC 04']
-        df_time_series_b['temp_5'] = df_time_series_file['TC 05']
-        df_time_series_b['temp_6'] = df_time_series_file['TC 06']
+        df_time_series_b['pos_terminal_temperature'] = df_time_series_file['TC 01']
+        df_time_series_b['neg_terminal_temperature'] = df_time_series_file['TC 02']
+        df_time_series_b['left_bottom_temperature'] = df_time_series_file['TC 03']
+        df_time_series_b['right_bottom_temperature'] = df_time_series_file['TC 04']
+        df_time_series_b['above_punch_temperature'] = df_time_series_file['TC 05']
+        df_time_series_b['below_punch_temperature'] = df_time_series_file['TC 06']
         df_time_series_b['cell_id'] = cell_id
 
         if df_tmerge.empty:
@@ -301,18 +301,96 @@ def read_snlabuse(cell_id, file_path):
         df_time_series['axial_d'] = df_time_series_file['Axial Displacement']
         df_time_series['axial_f'] = df_time_series_file['Axial Force']
         df_time_series['v'] = df_time_series_file['Analog 1']
-        df_time_series['temp_1'] = df_time_series_file['TC 01']
-        df_time_series['temp_2'] = df_time_series_file['TC 02']
-        df_time_series['temp_3'] = df_time_series_file['TC 03']
-        df_time_series['temp_4'] = df_time_series_file['TC 04']
-        df_time_series['temp_5'] = df_time_series_file['TC 05']
-        df_time_series['temp_6'] = df_time_series_file['TC 06']
+        df_time_series['pos_terminal_temperature'] = df_time_series_file['TC 01']
+        df_time_series['neg_terminal_temperature'] = df_time_series_file['TC 02']
+        df_time_series['left_bottom_temperature'] = df_time_series_file['TC 03']
+        df_time_series['right_bottom_temperature'] = df_time_series_file['TC 04']
+        df_time_series['above_punch_temperature'] = df_time_series_file['TC 05']
+        df_time_series['below_punch_temperature'] = df_time_series_file['TC 06']
         df_time_series['cell_id'] = cell_id
 
         if df_tmerge.empty:
             df_tmerge = df_time_series
         else:
             df_tmerge = df_tmerge.append(df_time_series, ignore_index=True)
+
+    return df_tmerge
+
+
+#import generic files: needs column mapping information in cell_list
+def read_generic(cell_id, file_path, file_type, mapping):
+
+    logging.info('adding files')
+
+    listOfFiles = glob.glob(file_path + '*.' + file_type)
+
+    for i in range(len(listOfFiles)):
+        listOfFiles[i] = listOfFiles[i].replace(file_path[:-1], '')
+
+    logging.info('list of files to add: ' + str(listOfFiles))
+
+    df_file = pd.DataFrame(listOfFiles, columns=['filename'])
+
+    df_file.sort_values(by=['filename'], inplace=True)
+
+    if df_file.empty:
+        return
+
+    df_file['cell_id'] = cell_id
+
+    df_tmerge = pd.DataFrame()
+
+    # Loop through all the Excel test files
+    for ind in df_file.index:
+
+        filename = df_file['filename'][ind]
+        cellpath = file_path + filename
+
+        logging.info('processing file: ' + filename)
+
+        if os.path.exists(cellpath):
+
+            if file_type == 'csv':
+                df_cell = pd.read_csv(cellpath, sep=',')
+
+            # Find the time series sheet in the excel file
+
+            df_time_series_file = df_cell
+            df_time_series = pd.DataFrame()
+            column_list = mapping.split(",")
+
+            file_col = 0
+            for col in column_list:
+                file_col_name = df_time_series_file.columns[file_col]
+                df_time_series[col] = df_time_series_file[file_col_name]
+                file_col += 1
+
+            print(df_time_series.columns)
+
+            df_time_series['date_time'] = pd.to_datetime(df_time_series['date_time'], format='%Y-%m-%d %H:%M:%S.%f')
+            df_time_series['i'] = df_time_series['i'].apply(pd.to_numeric)
+            df_time_series['v'] = df_time_series['v'].apply(pd.to_numeric)
+            df_time_series['env_temperature'] = df_time_series['env_temperature'].apply(pd.to_numeric)
+            df_time_series['test_time'] = df_time_series['date_time'] - df_time_series['date_time'].iloc[0]
+            df_time_series['test_time'] = df_time_series['test_time'].dt.total_seconds()
+
+            df_time_series['cycle_index_file'] = 1
+
+            df_time_series['filename'] = filename
+            df_time_series['ah_c'] = 0
+            df_time_series['e_c'] = 0
+            df_time_series['ah_d'] = 0
+            df_time_series['e_d'] = 0
+            df_time_series['cell_id'] = cell_id
+            df_time_series['cycle_index'] = 0
+            df_time_series['cycle_time'] = 0
+
+            print(df_time_series['test_time'].head(5))
+
+            if df_tmerge.empty:
+                df_tmerge = df_time_series
+            else:
+                df_tmerge = df_tmerge.append(df_time_series, ignore_index=True)
 
     return df_tmerge
 
@@ -457,7 +535,7 @@ def read_arbin(cell_id, file_path):
                     df_time_series['filename'] = filename
 
                     #if not df_time_series_file['Temperature (C)_1'].empty:
-                    #    df_time_series['temp_2'] = df_time_series_file['Temperature (C)_1']
+                    #    df_time_series['cell_temperature'] = df_time_series_file['Temperature (C)_1']
 
                     df_time_series['ah_c'] = 0
                     df_time_series['e_c'] = 0
@@ -574,7 +652,7 @@ def populate_abuse_metadata(df_c_md):
     # Build test metadata
     df_test_md = pd.DataFrame()
     df_test_md['cell_id'] = [df_c_md['cell_id']]
-    df_test_md['temp'] = [df_c_md['temperature']]
+    df_test_md['test_temperature'] = [df_c_md['temperature']]
     df_test_md['thickness'] = [df_c_md['thickness']]
     df_test_md['v_init'] = [df_c_md['v_init']]
     df_test_md['indentor'] = [df_c_md['indentor']]
@@ -604,7 +682,7 @@ def populate_cycle_metadata(df_c_md):
     df_test_md['crate_d'] = [df_c_md['crate_d']]
     df_test_md['soc_max'] = [df_c_md['soc_max']]
     df_test_md['soc_min'] = [df_c_md['soc_min']]
-    df_test_md['temp'] = [df_c_md['temperature']]
+    df_test_md['test_temperature'] = [df_c_md['temperature']]
 
     return df_cell_md, df_test_md
 
@@ -655,10 +733,16 @@ def add_cells(cell_list, conn, save, plot, path, slash):
 
             df_cell_md, df_test_md = populate_cycle_metadata(df_tmp)
 
-            if df_excel['tester'][ind]=='arbin':
+            if df_excel['tester'][ind] == 'arbin':
                 df_merge = read_arbin(cell_id, file_path)
-            elif df_excel['tester'][ind]=='maccor':
+            elif df_excel['tester'][ind] == 'maccor':
                 df_merge = read_maccor(cell_id, file_path)
+            elif df_excel['tester'][ind] == 'maccor':
+                df_merge = read_maccor(cell_id, file_path)
+            elif df_excel['tester'][ind] == 'generic':
+                file_type = df_excel['file_type'][ind]
+                mapping = df_excel['mapping'][ind]
+                df_merge = read_generic(cell_id, file_path, file_type, mapping)
 
             # Sort the timeseries data and rebuild cycle index and test time
             df_ts = sort_timeseries(df_merge)
@@ -667,6 +751,12 @@ def add_cells(cell_list, conn, save, plot, path, slash):
             df_stats, df_timeseries = calc_cycle_stats(df_ts, df_cell_md, df_test_md)
 
             # Controls when data is saved to the database
+
+            if plot:
+                df_timeseries.plot(x='test_time', y='v')
+                df_timeseries.plot(x='test_time', y='i')
+                plt.show()
+
             if save:
                 engine = create_engine(conn)
                 df_cell_md.to_sql('cell_metadata', con=engine, if_exists='append', chunksize=1000, index=False)
@@ -679,9 +769,9 @@ def add_cells(cell_list, conn, save, plot, path, slash):
 
             df_cell_md, df_test_md = populate_abuse_metadata(df_tmp)
 
-            if df_excel['tester'][ind]=='ornl':
+            if df_excel['tester'][ind] == 'ornl':
                 df_merge = read_ornlabuse(cell_id, file_path)
-            elif df_excel['tester'][ind]=='snl':
+            elif df_excel['tester'][ind] == 'snl':
                 df_merge = read_snlabuse(cell_id, file_path)
 
             # Sort the timeseries data and rebuild cycle index and test time
@@ -742,8 +832,8 @@ def generate_timeseries_data(cell_id, conn, path):
           round(ah_d,3) as "Discharge_Capacity (Ah)", 
           round(e_c,3) as "Charge_Energy (Wh)", 
           round(e_d,3) as "Discharge_Energy (Wh)",
-          round(temp_1,3) as "Environment_Temperature (C)",
-          round(temp_2,3) as "Cell_Temperature (C)"
+          round(env_temperature,3) as "Environment_Temperature (C)",
+          round(cell_temperature,3) as "Cell_Temperature (C)"
       from cycle_timeseries where cell_id='""" + cell_id + """' order by test_time"""
 
     df = pd.read_sql(sql_str[0], conn)

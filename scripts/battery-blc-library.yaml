@@ -5,5 +5,5 @@ version: "0.1"
 environment:
   DATABASE_CONNECTION: "postgresql://postgres:HLgCazkIx7Y1JYldPmZg27PhNiUDnaAP@localhost:5432/postgres"
   STYLE: 'unix'
-  PLOT: False
+  PLOT: True
   SAVE: True
