@@ -52,9 +52,11 @@ DATASOURCE_OPTIONS_JSON_STRING=$(printf "$DATASOURCE_OPTIONS_JSON_FMT" $POSTGRES
 ## Add the first datasource
 sudo docker-compose run --rm server manage ds new --type pg --options ${DATASOURCE_OPTIONS_JSON_STRING} "battery_archive"
 
+## Run the composed stack
+sudo docker-compose up -d 
+
 ## Add all of the pre-built queries now
+## This needs to be done after bringing up the docker-compose stack. Reliant on nginx being ready
 ##sudo python3 scripts/redash_queries/query_import.py --api-key=$ADMIN_API_KEY --redash-url=$HOST_IP_ADDRESS
 (cd scripts/redash_queries; sudo python3 query_import.py --api-key=$ADMIN_API_KEY --redash-url=http://$HOST_IP_ADDRESS)
 
-## Run the composed stack
-sudo docker-compose up -d 
