@@ -28,7 +28,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.abuse_metadata (
-    temp numeric,
+    test_temperature numeric,
     thickness numeric,
     v_init numeric,
     indentor numeric,
@@ -50,12 +50,12 @@ CREATE TABLE public.abuse_timeseries (
     v numeric,
     norm_d numeric,
     strain numeric,
-    temp_1 numeric,
-    temp_2 numeric,
-    temp_3 numeric,
-    temp_4 numeric,
-    temp_5 numeric,
-    temp_6 numeric,
+    pos_terminal_temperature numeric,
+    neg_terminal_temperature numeric,
+    left_bottom_temperature numeric,
+    right_bottom_temperature numeric,
+    above_punch_temperature numeric,
+    below_punch_temperature numeric,
     test_time numeric,
     cell_id character varying(100)
 );
@@ -88,7 +88,7 @@ ALTER TABLE public.cell_metadata OWNER TO postgres;
 --
 
 CREATE TABLE public.cycle_metadata (
-    temp numeric,
+    test_temperature numeric,
     soc_max numeric,
     soc_min numeric,
     v_max numeric,
@@ -139,8 +139,8 @@ CREATE TABLE public.cycle_timeseries (
     ah_d numeric,
     e_c numeric,
     e_d numeric,
-    temp_1 numeric,
-    temp_2 numeric,
+    env_temperature numeric,
+    cell_temperature numeric,
     cycle_time numeric,
     date_time timestamp without time zone,
     cycle_index numeric,
