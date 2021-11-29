@@ -9,7 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 import pandas as pd
 from sqlalchemy.sql.sqltypes import FLOAT
-from cell import Cell
+from cell import ArchiveCell
 from aio import ArchiveWriter
 from archive_constants import (LABEL, DEGREE, OUTPUT_LABELS, SLASH,
                                ARCHIVE_TABLE, CELL_LIST_FILE_NAME, TEST_DB_URL)
@@ -159,14 +159,14 @@ class ArchiveOperator:
             self.add_cell_to_db(cell)
         return True
 
-    def read_cell_metadata(self, cell: Cell):
+    def read_cell_metadata(self, cell: ArchiveCell):
         query = self.session.query(cell.cell_meta_table).filter(
             cell.cell_meta_table.cell_id == cell.cell_id)
         df = pd.read_sql(query.statement, self.session.bind)
         df = df.round(DEGREE)
         return df
 
-    def read_celltest_metadata(self, cell: Cell):
+    def read_celltest_metadata(self, cell: ArchiveCell):
         query = self.session.query(cell.test_meta_table).filter(
             cell.test_meta_table.cell_id == cell.cell_id)
         df = pd.read_sql(query.statement, self.session.bind)
@@ -271,7 +271,7 @@ class ArchiveOperator:
         df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
         cells = []
         for i in df_excel.index:
-            cell = Cell(cell_id=df_excel[LABEL.CELL_ID.value][i],
+            cell = ArchiveCell(cell_id=df_excel[LABEL.CELL_ID.value][i],
                         test_type=str(df_excel[LABEL.TEST.value][i]),
                         file_id=df_excel[LABEL.FILE_ID.value][i],
                         tester=df_excel[LABEL.TESTER.value][i],

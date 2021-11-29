@@ -2,7 +2,7 @@ import pandas as pd
 from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
                                SLASH, ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
 from converter import (split_cycle_metadata, split_abuse_metadata,
-                       sort_timeseries, calc_cycle_stats, calc_abuse_stats)
+                       calc_cycle_stats, calc_abuse_stats)
 from aio import CellTestReader
 
 
@@ -10,7 +10,7 @@ class TestTypeException(Exception):
     pass
 
 
-class Cell:
+class ArchiveCell:
     def __init__(self,
                  cell_id,
                  test_type=None,

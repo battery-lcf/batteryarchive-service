@@ -2,7 +2,7 @@ from flask import Flask, request
 from archive_constants import TEST_DB_URL
 from aio import ArchiveWriter
 from model import ArchiveOperator
-from cell import Cell
+from cell import ArchiveCell
 
 app = Flask(__name__)
 app.config['DATABASE_URI'] = TEST_DB_URL
@@ -19,7 +19,7 @@ def hello_world():
 @app.route("/export-metadata/<cell_id>/<path>")
 def export_celltest_data(cell_id=None, path=None):
     ao = ArchiveOperator()
-    cell = Cell(cell_id)
+    cell = ArchiveCell(cell_id)
     df = ao.read_celltest_metadata(cell)
     return ArchiveWriter.write_to_csv(df, cell.cell_id, path,
                                       cell.test_type + "_data")

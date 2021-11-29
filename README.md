@@ -11,6 +11,11 @@ To learn more about the design of the software, read our paper available online 
 For more information, contact us at info@batteryarchive.org.
 
 
+## How It Works
+### Import data from CSV or XLS into Archive
+
+### Export data from Archive into CSV
+
 ## How To Develop
 ```
 
