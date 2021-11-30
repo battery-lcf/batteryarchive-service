@@ -68,7 +68,8 @@ def sort_timeseries(df_tmerge):
         df_t = df_t.reset_index(drop=True)
 
         cycles = df_t[[
-            "cycle_index_file", "cycle_index", "filename", "test_time"
+            LABEL.CYCLE_INDEX_FILE.value, LABEL.CYCLE_INDEX.value,
+            LABEL.FILENAME.value, LABEL.TEST_TIME.value
         ]].to_numpy()
 
         max_cycle = 1
@@ -108,17 +109,20 @@ def sort_timeseries(df_tmerge):
                 max_cycle = x[0]
                 x[1] = x[0]
 
-        df_tmp = pd.DataFrame(data=cycles[:, [1]], columns=[LABEL.CYCLE_INDEX.value])
+        df_tmp = pd.DataFrame(data=cycles[:, [1]],
+                              columns=[LABEL.CYCLE_INDEX.value])
         df_t[LABEL.CYCLE_INDEX.value] = df_tmp[LABEL.CYCLE_INDEX.value]
 
-        df_tmp = pd.DataFrame(data=cycles[:, [3]], columns=[LABEL.TEST_TIME.value])
-        df_t[LABEL.TEST_TIME.value] = pd.to_numeric(df_tmp[LABEL.TEST_TIME.value])
+        df_tmp = pd.DataFrame(data=cycles[:, [3]],
+                              columns=[LABEL.TEST_TIME.value])
+        df_t[LABEL.TEST_TIME.value] = pd.to_numeric(
+            df_tmp[LABEL.TEST_TIME.value])
 
         df_ts = df_t.sort_values(by=[LABEL.TEST_TIME.value])
 
         # Remove quantities only needed to tag files
-        df_ts.drop('filename', axis=1, inplace=True)
-        df_ts.drop('cycle_index_file', axis=1, inplace=True)
+        df_ts.drop(LABEL.FILENAME.value, axis=1, inplace=True)
+        df_ts.drop(LABEL.CYCLE_INDEX_FILE.value, axis=1, inplace=True)
 
         return df_ts
 
@@ -128,9 +132,11 @@ def calc_abuse_stats(df_t, df_test_md):
 
     for _ in df_t.index:
         df_t[LABEL.NORM_D.value] = df_t.iloc[
-            0:, df_t.columns.get_loc(LABEL.AXIAL_D.value)] - df_t[LABEL.AXIAL_D.value][0]
+            0:, df_t.columns.get_loc(LABEL.AXIAL_D.value)] - df_t[
+                LABEL.AXIAL_D.value][0]
         df_t[LABEL.STRAIN.value] = df_t.iloc[
-            0:, df_t.columns.get_loc(LABEL.NORM_D.value)] / df_test_md[LABEL.THICKNESS.value]
+            0:, df_t.columns.get_loc(LABEL.NORM_D.value)] / df_test_md[
+                LABEL.THICKNESS.value]
 
     return df_t
 
@@ -193,10 +199,12 @@ def calc_cycle_stats(df_t):
                           df_c.columns.get_loc(LABEL.I_MIN.value)] = df_f.loc[
                               df_f[LABEL.I.value].idxmin()].i
 
-                df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.TEST_TIME.value)] = df_f.loc[
-                    df_f[LABEL.TEST_TIME.value].idxmax()].test_time
+                df_c.iloc[
+                    c_ind,
+                    df_c.columns.get_loc(LABEL.TEST_TIME.value)] = df_f.loc[
+                        df_f[LABEL.TEST_TIME.value].idxmax()].test_time
 
-                df_f[LABEL.DT.valueLABEL.TEST_TIME.value].diff() / 3600.0
+                df_f[LABEL.DT.value] = df_f[LABEL.TEST_TIME.value].diff() / 3600.0
                 df_f_c = df_f[df_f[LABEL.I.value] > 0]
                 df_f_d = df_f[df_f[LABEL.I.value] < 0]
 
@@ -204,38 +212,48 @@ def calc_cycle_stats(df_t):
 
                 df_t.loc[df_t.cycle_index == x,
                          LABEL.CYCLE_TIME.value] = df_f[LABEL.CYCLE_TIME.value]
-                df_t.loc[df_t.cycle_index == x, LABEL.AH_C.value] = df_f[LABEL.AH_C.value]
-                df_t.loc[df_t.cycle_index == x, LABEL.E_C.value] = df_f[LABEL.E_C.value]
-                df_t.loc[df_t.cycle_index == x, LABEL.AH_D.value] = df_f[LABEL.AH_D.value]
-                df_t.loc[df_t.cycle_index == x, LABEL.E_D.value] = df_f[LABEL.E_D.value]
+                df_t.loc[df_t.cycle_index == x,
+                         LABEL.AH_C.value] = df_f[LABEL.AH_C.value]
+                df_t.loc[df_t.cycle_index == x,
+                         LABEL.E_C.value] = df_f[LABEL.E_C.value]
+                df_t.loc[df_t.cycle_index == x,
+                         LABEL.AH_D.value] = df_f[LABEL.AH_D.value]
+                df_t.loc[df_t.cycle_index == x,
+                         LABEL.E_D.value] = df_f[LABEL.E_D.value]
 
                 df_c.iloc[c_ind,
-                          df_c.columns.get_loc(LABEL.AH_C.value)] = df_f[LABEL.AH_C.value].max()
+                          df_c.columns.get_loc(LABEL.AH_C.value)] = df_f[
+                              LABEL.AH_C.value].max()
                 df_c.iloc[c_ind,
-                          df_c.columns.get_loc(LABEL.AH_D.value)] = df_f[LABEL.AH_D.value].max()
-                df_c.iloc[c_ind,
-                          df_c.columns.get_loc(LABEL.E_C.value)] = df_f[LABEL.E_C.value].max()
-                df_c.iloc[c_ind,
-                          df_c.columns.get_loc(LABEL.E_D.value)] = df_f[LABEL.E_D.value].max()
+                          df_c.columns.get_loc(LABEL.AH_D.value)] = df_f[
+                              LABEL.AH_D.value].max()
+                df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.E_C.value)] = df_f[
+                    LABEL.E_C.value].max()
+                df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.E_D.value)] = df_f[
+                    LABEL.E_D.value].max()
 
-                df_c.iloc[
-                    c_ind,
-                    df_c.columns.get_loc('v_c_mean')] = df_f_c['v'].mean()
-                df_c.iloc[
-                    c_ind,
-                    df_c.columns.get_loc('v_d_mean')] = df_f_d['v'].mean()
+                df_c.iloc[c_ind,
+                          df_c.columns.get_loc(LABEL.V_C_MEAN.value)] = df_f_c[
+                              LABEL.V.value].mean()
+                df_c.iloc[c_ind,
+                          df_c.columns.get_loc(LABEL.V_D_MEAN.value)] = df_f_d[
+                              LABEL.V.value].mean()
 
-                if df_c.iloc[c_ind, df_c.columns.get_loc('ah_c')] == 0:
-                    df_c.iloc[c_ind, df_c.columns.get_loc('ah_eff')] = 0
+                if df_c.iloc[c_ind,
+                             df_c.columns.get_loc(LABEL.AH_C.value)] == 0:
+                    df_c.iloc[c_ind,
+                              df_c.columns.get_loc(LABEL.AH_EFF.value)] = 0
                 else:
-                    df_c.iloc[c_ind, df_c.columns.get_loc('ah_eff')] = df_c.iloc[c_ind, df_c.columns.get_loc('ah_d')] / \
-                                                                       df_c.iloc[c_ind, df_c.columns.get_loc('ah_c')]
+                    df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.AH_EFF.value)] = df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.AH_D.value)] / \
+                                                                       df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.AH_C.value)]
 
-                if df_c.iloc[c_ind, df_c.columns.get_loc('e_c')] == 0:
-                    df_c.iloc[c_ind, df_c.columns.get_loc('e_eff')] = 0
+                if df_c.iloc[c_ind,
+                             df_c.columns.get_loc(LABEL.E_C.value)] == 0:
+                    df_c.iloc[c_ind,
+                              df_c.columns.get_loc(LABEL.E_EFF.value)] = 0
                 else:
-                    df_c.iloc[c_ind, df_c.columns.get_loc('e_eff')] = df_c.iloc[c_ind, df_c.columns.get_loc('e_d')] / \
-                                                                      df_c.iloc[c_ind, df_c.columns.get_loc('e_c')]
+                    df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.E_EFF.value)] = df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.E_D.value)] / \
+                                                                      df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.E_C.value)]
 
             except Exception as e:
                 pass
@@ -249,8 +267,9 @@ def calc_cycle_stats(df_t):
 def calc_cycle_quantities(df):
 
     tmp_arr = df[[
-        LABEL.TEST_TIME.value, LABEL.I.value, LABEL.V.value, LABEL.AH_C.value, LABEL.E_C.value,
-        LABEL.AH_D.value, LABEL.E_D.value, LABEL.CYCLE_TIME.value
+        LABEL.TEST_TIME.value, LABEL.I.value, LABEL.V.value, LABEL.AH_C.value,
+        LABEL.E_C.value, LABEL.AH_D.value, LABEL.E_D.value,
+        LABEL.CYCLE_TIME.value
     ]].to_numpy()
 
     start = 0
@@ -314,7 +333,8 @@ def calc_cycle_quantities(df):
     df_tmp.index += df.index[0]
     df[LABEL.E_D.value] = -df_tmp[LABEL.E_D.value] / 3600.0
 
-    df_tmp = pd.DataFrame(data=tmp_arr[:, [7]], columns=[LABEL.CYCLE_TIME.value])
+    df_tmp = pd.DataFrame(data=tmp_arr[:, [7]],
+                          columns=[LABEL.CYCLE_TIME.value])
     df_tmp.index += df.index[0]
     df[LABEL.CYCLE_TIME.value] = df_tmp[LABEL.CYCLE_TIME.value]
 

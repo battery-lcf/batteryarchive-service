@@ -86,5 +86,8 @@ class LABEL(Enum):
     NORM_D = "norm_d"
     AXIAL_D = "axial_d"
     STRAIN = "strain"
+    CYCLE_INDEX_FILE = "cycle_index_file"
+    FILENAME = "filename"
+
 
 TEST_DB_URL = "sqlite:///tests/test-data/tmp/bas-test.db"

@@ -25,34 +25,16 @@ def export_celltest_data(cell_id=None, path=None):
                                       cell.test_type + "_data")
 
 
-@app.route("/add")
+@app.route("/create")
 def addMode():
-    app.logger.info('Adding Started')
-    #di.main(['-m', 'add', '-p', 'data/snl/'])
-    return "<p>Added!</p>"
-
-
-@app.route("/add-export")
-def addAndexportMode():
-    app.logger.info('Adding Started')
-    #di.main(['-m', 'add', '-p', 'data/snl/'])
-    app.logger.info('Export Started')
-    #di.main(['-m', 'export', '-p', 'data/snl/'])
-    return "<p>Added and Exported</p>"
-
+    app.logger.info('Creating Cell...')
+    return "<p>Done.</p>"
 
 @app.route("/export")
 def exportMode():
     app.logger.info('Export Started')
     #di.main(['-m', 'export', '-p', 'data/snl/'])
     return "<p>Exported</p>"
-
-
-@app.route("/test-connection")
-def testConnection():
-    app.logger.info('Testing DB Connection')
-    return "<p>DB Connected!</p>"
-
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port='4000')
