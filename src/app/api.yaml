@@ -12,7 +12,7 @@ paths:
   /cells:
     get:
       summary: Returns a list of all cells and their respective metadata
-      description: 
+      operationId: getAllCells
       responses:
         '200':    # status code
           description: A JSON array of cells
@@ -22,10 +22,39 @@ paths:
                 type: array
                 items: 
                   type: string
-  /cells/{id}:
+    post:
+      summary: Creates a new cell with metadata in Archive
+      operationId: createCell
+
+      responses:
+        '200':    # status code
+          description: A JSON array of cells
+          content:
+            application/json:
+              schema: 
+                type: integer
+                format: int64
+  /cells/{cellId}:
     get:
       summary: Returns a single cell with metadata
-      description: 
+      operationId: getCell
+      parameters:
+        - name: cellId
+          in: path
+          required: true
+          description: The id of the cell to retrieve
+          schema:
+            type: string
+      responses:
+        '200':    # status code
+          description: A JSON array of cells
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cell"
+    patch:
+      summary: Update the metadata of a single cell
+      operationId: updateCell  
       responses:
         '200':    # status code
           description: A JSON array of cells
@@ -35,9 +64,15 @@ paths:
                 type: array
                 items: 
                   type: string
-  /cells/{id}/data:
+    delete:
+      summary: Deletes a single cell 
+      operationId: deleteCell 
+      responses:
+        '200':    # status code
+
+  /cells/{cellId}/tests/{testName}:
     get:
-      summary: Returns cell with metadata and timeseries data
+      summary: Returns all data for test named testName on cellId in Archive
       description: 
       responses:
         '200':    # status code
@@ -48,3 +83,34 @@ paths:
                 type: array
                 items: 
                   type: string
+    post:
+      summary: - Creates new test named testName for cellId in Archive
+      description: 
+      responses:
+        '200':    # status code
+          description: A JSON array of cells
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: string   
+components:
+  schemas:
+    Cell:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        tag:
+          type: string
+    Cells:
+      type: array
+      items:
+        $ref: "#/components/schemas/Cell"               
