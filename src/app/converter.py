@@ -108,7 +108,7 @@ def sort_timeseries(df_tmerge):
                 max_cycle = x[0]
                 x[1] = x[0]
 
-        df_tmp = pd.DataFrame(data=cycles[:, [1]], columns=[LABEL.CYCLE_INDEX.value]])
+        df_tmp = pd.DataFrame(data=cycles[:, [1]], columns=[LABEL.CYCLE_INDEX.value])
         df_t[LABEL.CYCLE_INDEX.value] = df_tmp[LABEL.CYCLE_INDEX.value]
 
         df_tmp = pd.DataFrame(data=cycles[:, [3]], columns=[LABEL.TEST_TIME.value])
