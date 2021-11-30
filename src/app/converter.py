@@ -1,11 +1,13 @@
 import pandas as pd
-from archive_constants import (LABEL, TEST_TYPE)
+from archive_constants import (LABEL)
 import warnings
 from pandas.core.common import SettingWithCopyWarning
 
-pd.set_option('mode.chained_assignment',None)
+pd.set_option('mode.chained_assignment', None)
 
 warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
+
+
 def extract_cell_metdata(df_c_md):
     """ Build cell metadata """
     df_cell_md = pd.DataFrame()
@@ -36,6 +38,7 @@ def split_cycle_metadata(df_c_md):
 
     return df_cell_md, df_test_md
 
+
 def split_abuse_metadata(df_c_md):
 
     df_cell_md = extract_cell_metdata(df_c_md)
@@ -50,7 +53,8 @@ def split_abuse_metadata(df_c_md):
     df_test_md[LABEL.TEMP.value] = [df_c_md[LABEL.TEMP.value]]
 
     return df_cell_md, df_test_md
-    
+
+
 # sort data imported to insure cycle index and test times are correctly calculated
 def sort_timeseries(df_tmerge):
     # Arrange the data by date time first, then by test time
@@ -104,13 +108,13 @@ def sort_timeseries(df_tmerge):
                 max_cycle = x[0]
                 x[1] = x[0]
 
-        df_tmp = pd.DataFrame(data=cycles[:, [1]], columns=["cycle_index"])
-        df_t['cycle_index'] = df_tmp['cycle_index']
+        df_tmp = pd.DataFrame(data=cycles[:, [1]], columns=[LABEL.CYCLE_INDEX.value]])
+        df_t[LABEL.CYCLE_INDEX.value] = df_tmp[LABEL.CYCLE_INDEX.value]
 
-        df_tmp = pd.DataFrame(data=cycles[:, [3]], columns=["test_time"])
-        df_t['test_time'] = pd.to_numeric(df_tmp['test_time'])
+        df_tmp = pd.DataFrame(data=cycles[:, [3]], columns=[LABEL.TEST_TIME.value])
+        df_t[LABEL.TEST_TIME.value] = pd.to_numeric(df_tmp[LABEL.TEST_TIME.value])
 
-        df_ts = df_t.sort_values(by=['test_time'])
+        df_ts = df_t.sort_values(by=[LABEL.TEST_TIME.value])
 
         # Remove quantities only needed to tag files
         df_ts.drop('filename', axis=1, inplace=True)
@@ -123,10 +127,10 @@ def sort_timeseries(df_tmerge):
 def calc_abuse_stats(df_t, df_test_md):
 
     for _ in df_t.index:
-        df_t["norm_d"] = df_t.iloc[
-            0:, df_t.columns.get_loc("axial_d")] - df_t['axial_d'][0]
-        df_t['strain'] = df_t.iloc[
-            0:, df_t.columns.get_loc("norm_d")] / df_test_md['thickness']
+        df_t[LABEL.NORM_D.value] = df_t.iloc[
+            0:, df_t.columns.get_loc(LABEL.AXIAL_D.value)] - df_t[LABEL.AXIAL_D.value][0]
+        df_t[LABEL.STRAIN.value] = df_t.iloc[
+            0:, df_t.columns.get_loc(LABEL.NORM_D.value)] / df_test_md[LABEL.THICKNESS.value]
 
     return df_t
 
@@ -177,42 +181,42 @@ def calc_cycle_stats(df_t):
 
                 df_c.iloc[c_ind,
                           df_c.columns.get_loc(LABEL.V_MAX.value)] = df_f.loc[
-                              df_f['v'].idxmax()].v
+                              df_f[LABEL.V.value].idxmax()].v
                 df_c.iloc[c_ind,
                           df_c.columns.get_loc(LABEL.V_MIN.value)] = df_f.loc[
-                              df_f['v'].idxmin()].v
+                              df_f[LABEL.V.value].idxmin()].v
 
                 df_c.iloc[c_ind,
                           df_c.columns.get_loc(LABEL.I_MAX.value)] = df_f.loc[
-                              df_f['i'].idxmax()].i
+                              df_f[LABEL.I.value].idxmax()].i
                 df_c.iloc[c_ind,
                           df_c.columns.get_loc(LABEL.I_MIN.value)] = df_f.loc[
-                              df_f['i'].idxmin()].i
+                              df_f[LABEL.I.value].idxmin()].i
 
-                df_c.iloc[c_ind, df_c.columns.get_loc('test_time')] = df_f.loc[
-                    df_f['test_time'].idxmax()].test_time
+                df_c.iloc[c_ind, df_c.columns.get_loc(LABEL.TEST_TIME.value)] = df_f.loc[
+                    df_f[LABEL.TEST_TIME.value].idxmax()].test_time
 
-                df_f['dt'] = df_f['test_time'].diff() / 3600.0
-                df_f_c = df_f[df_f['i'] > 0]
-                df_f_d = df_f[df_f['i'] < 0]
+                df_f[LABEL.DT.valueLABEL.TEST_TIME.value].diff() / 3600.0
+                df_f_c = df_f[df_f[LABEL.I.value] > 0]
+                df_f_d = df_f[df_f[LABEL.I.value] < 0]
 
                 df_f = calc_cycle_quantities(df_f)
 
                 df_t.loc[df_t.cycle_index == x,
-                         'cycle_time'] = df_f['cycle_time']
-                df_t.loc[df_t.cycle_index == x, 'ah_c'] = df_f['ah_c']
-                df_t.loc[df_t.cycle_index == x, 'e_c'] = df_f['e_c']
-                df_t.loc[df_t.cycle_index == x, 'ah_d'] = df_f['ah_d']
-                df_t.loc[df_t.cycle_index == x, 'e_d'] = df_f['e_d']
+                         LABEL.CYCLE_TIME.value] = df_f[LABEL.CYCLE_TIME.value]
+                df_t.loc[df_t.cycle_index == x, LABEL.AH_C.value] = df_f[LABEL.AH_C.value]
+                df_t.loc[df_t.cycle_index == x, LABEL.E_C.value] = df_f[LABEL.E_C.value]
+                df_t.loc[df_t.cycle_index == x, LABEL.AH_D.value] = df_f[LABEL.AH_D.value]
+                df_t.loc[df_t.cycle_index == x, LABEL.E_D.value] = df_f[LABEL.E_D.value]
 
                 df_c.iloc[c_ind,
-                          df_c.columns.get_loc('ah_c')] = df_f['ah_c'].max()
+                          df_c.columns.get_loc(LABEL.AH_C.value)] = df_f[LABEL.AH_C.value].max()
                 df_c.iloc[c_ind,
-                          df_c.columns.get_loc('ah_d')] = df_f['ah_d'].max()
+                          df_c.columns.get_loc(LABEL.AH_D.value)] = df_f[LABEL.AH_D.value].max()
                 df_c.iloc[c_ind,
-                          df_c.columns.get_loc('e_c')] = df_f['e_c'].max()
+                          df_c.columns.get_loc(LABEL.E_C.value)] = df_f[LABEL.E_C.value].max()
                 df_c.iloc[c_ind,
-                          df_c.columns.get_loc('e_d')] = df_f['e_d'].max()
+                          df_c.columns.get_loc(LABEL.E_D.value)] = df_f[LABEL.E_D.value].max()
 
                 df_c.iloc[
                     c_ind,
@@ -245,7 +249,8 @@ def calc_cycle_stats(df_t):
 def calc_cycle_quantities(df):
 
     tmp_arr = df[[
-        "test_time", "i", "v", "ah_c", 'e_c', 'ah_d', 'e_d', 'cycle_time'
+        LABEL.TEST_TIME.value, LABEL.I.value, LABEL.V.value, LABEL.AH_C.value, LABEL.E_C.value,
+        LABEL.AH_D.value, LABEL.E_D.value, LABEL.CYCLE_TIME.value
     ]].to_numpy()
 
     start = 0
@@ -293,24 +298,24 @@ def calc_cycle_quantities(df):
         x[7] = x[0] - initial_time
         last_time = x[0]
 
-    df_tmp = pd.DataFrame(data=tmp_arr[:, [3]], columns=["ah_c"])
+    df_tmp = pd.DataFrame(data=tmp_arr[:, [3]], columns=[LABEL.AH_C.value])
     df_tmp.index += df.index[0]
-    df['ah_c'] = df_tmp['ah_c'] / 3600.0
+    df[LABEL.AH_C.value] = df_tmp[LABEL.AH_C.value] / 3600.0
 
-    df_tmp = pd.DataFrame(data=tmp_arr[:, [4]], columns=["e_c"])
+    df_tmp = pd.DataFrame(data=tmp_arr[:, [4]], columns=[LABEL.E_C.value])
     df_tmp.index += df.index[0]
-    df['e_c'] = df_tmp['e_c'] / 3600.0
+    df[LABEL.E_C.value] = df_tmp[LABEL.E_C.value] / 3600.0
 
-    df_tmp = pd.DataFrame(data=tmp_arr[:, [5]], columns=["ah_d"])
+    df_tmp = pd.DataFrame(data=tmp_arr[:, [5]], columns=[LABEL.AH_D.value])
     df_tmp.index += df.index[0]
-    df['ah_d'] = -df_tmp['ah_d'] / 3600.0
+    df[LABEL.AH_D.value] = -df_tmp[LABEL.AH_D.value] / 3600.0
 
-    df_tmp = pd.DataFrame(data=tmp_arr[:, [6]], columns=["e_d"])
+    df_tmp = pd.DataFrame(data=tmp_arr[:, [6]], columns=[LABEL.E_D.value])
     df_tmp.index += df.index[0]
-    df['e_d'] = -df_tmp['e_d'] / 3600.0
+    df[LABEL.E_D.value] = -df_tmp[LABEL.E_D.value] / 3600.0
 
-    df_tmp = pd.DataFrame(data=tmp_arr[:, [7]], columns=["cycle_time"])
+    df_tmp = pd.DataFrame(data=tmp_arr[:, [7]], columns=[LABEL.CYCLE_TIME.value])
     df_tmp.index += df.index[0]
-    df['cycle_time'] = df_tmp['cycle_time']
+    df[LABEL.CYCLE_TIME.value] = df_tmp[LABEL.CYCLE_TIME.value]
 
     return df

@@ -131,7 +131,7 @@ class ArchiveOperator:
     def add_cell_to_db(self, cell):
         df_cell_md = cell.cellmeta
         df_test_meta_md = cell.testmeta
-        df_stats, df_timeseries = cell.load_data().calc_stats()
+        df_stats, df_timeseries = cell.stat
         df_cell_md.to_sql(cell.cell_meta_table,
                           con=self.session.bind,
                           if_exists="append",
@@ -272,12 +272,12 @@ class ArchiveOperator:
         cells = []
         for i in df_excel.index:
             cell = ArchiveCell(cell_id=df_excel[LABEL.CELL_ID.value][i],
-                        test_type=str(df_excel[LABEL.TEST.value][i]),
-                        file_id=df_excel[LABEL.FILE_ID.value][i],
-                        tester=df_excel[LABEL.TESTER.value][i],
-                        file_path=cell_list_path +
-                        df_excel[LABEL.FILE_ID.value][i] + SLASH,
-                        metadata=df_excel.iloc[i])
+                               test_type=str(df_excel[LABEL.TEST.value][i]),
+                               file_id=df_excel[LABEL.FILE_ID.value][i],
+                               tester=df_excel[LABEL.TESTER.value][i],
+                               file_path=cell_list_path +
+                               df_excel[LABEL.FILE_ID.value][i] + SLASH,
+                               metadata=df_excel.iloc[i])
             cells.append(cell)
         return self.add_cells_to_db(cells)
 
@@ -290,13 +290,6 @@ class ArchiveOperator:
             df = pd.read_sql(query.statement, self.session.bind)
             df = df[df[LABEL.CELL_ID.value] == cell_id]
             df = df.round(DEGREE)
-            # cell = Cell(cell_id=df_excel[LABEL.CELL_ID.value][i],
-            #             test_type=str(df_excel[LABEL.TEST.value][i]),
-            #             file_id=df_excel[LABEL.FILE_ID.value][i],
-            #             tester=df_excel[LABEL.TESTER.value][i],
-            #             file_path=cell_list_path +
-            #             df_excel[LABEL.FILE_ID.value][i] + SLASH,
-            #             metadata=df_excel.iloc[i])
             if not df.empty:
                 self.generate_cycle_data(cell_id, path)
                 self.generate_timeseries_data(cell_id, path)

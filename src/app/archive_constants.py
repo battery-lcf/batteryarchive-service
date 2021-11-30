@@ -80,5 +80,11 @@ class LABEL(Enum):
     TEST_TIME = "test_time"
     AH_EFF = "ah_eff"
     E_EFF = "e_eff"
+    I = "i"
+    V = "v"
+    DT = "dt"
+    NORM_D = "norm_d"
+    AXIAL_D = "axial_d"
+    STRAIN = "strain"
 
 TEST_DB_URL = "sqlite:///tests/test-data/tmp/bas-test.db"
