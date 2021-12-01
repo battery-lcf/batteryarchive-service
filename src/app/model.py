@@ -281,6 +281,13 @@ class ArchiveOperator:
             cells.append(cell)
         return self.add_cells_to_db(cells)
 
+    def get_all_cells(self):
+        return self.session.query(CellMeta).all()
+
+    def get_cell_with_id(self, cell_id):
+        return self.session.query(CellMeta).filter(
+            CellMeta.cell_id == cell_id).all()
+
     def export_cells(self, cell_list_path, path):
         df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
         for i in df_excel.index:
