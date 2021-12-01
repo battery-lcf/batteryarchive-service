@@ -10,3 +10,4 @@ pyyaml==6.0
 Flask
 gunicorn
 configparser
+connexion[swagger-ui]

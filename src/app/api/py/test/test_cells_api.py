@@ -23,24 +23,10 @@ class TestCellsApi(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_create_cells(self):
-        """Test case for create_cells
+    def test_get_cells(self):
+        """Test case for get_cells
 
-        Create a cell  # noqa: E501
-        """
-        pass
-
-    def test_list_cells(self):
-        """Test case for list_cells
-
-        List all cells  # noqa: E501
-        """
-        pass
-
-    def test_show_cell_by_id(self):
-        """Test case for show_cell_by_id
-
-        Info for a specific cell  # noqa: E501
+        Fetches all Cells  # noqa: E501
         """
         pass
 

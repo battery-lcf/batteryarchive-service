@@ -50,7 +50,6 @@ import time
 import openapi_client
 from pprint import pprint
 from openapi_client.api import cells_api
-from openapi_client.model.cell import Cell
 from openapi_client.model.cells import Cells
 from openapi_client.model.error import Error
 # Defining the host is optional and defaults to http://localhost
@@ -65,12 +64,14 @@ configuration = openapi_client.Configuration(
 with openapi_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = cells_api.CellsApi(api_client)
-    
+    limit = 1 # int | How many items to return at one time (max 100) (optional)
+
     try:
-        # Create a Cell
-        api_instance.create_cells()
+        # Fetches all Cells
+        api_response = api_instance.get_cells(limit=limit)
+        pprint(api_response)
     except openapi_client.ApiException as e:
-        print("Exception when calling CellsApi->create_cells: %s\n" % e)
+        print("Exception when calling CellsApi->get_cells: %s\n" % e)
 ```
 
 ## Documentation for API Endpoints
@@ -79,12 +80,7 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*CellsApi* | [**create_cells**](docs/CellsApi.md#create_cells) | **POST** /cells | Create a Cell
-*CellsApi* | [**list_cells**](docs/CellsApi.md#list_cells) | **GET** /cells | List all Cells
-*CellsApi* | [**show_cell_by_id**](docs/CellsApi.md#show_cell_by_id) | **GET** /cells/{cellId} | Info for a specific Cell
-*TestsApi* | [**create_test**](docs/TestsApi.md#create_test) | **POST** /cells/{cellId}/tests | Create a test for Cell
-*TestsApi* | [**list_tests**](docs/TestsApi.md#list_tests) | **GET** /tests | List all Tests
-*TestsApi* | [**show_tests_for_cell_by_id**](docs/TestsApi.md#show_tests_for_cell_by_id) | **GET** /cells/{cellId}/tests | Info for all Tests on Cell
+*CellsApi* | [**get_cells**](docs/CellsApi.md#get_cells) | **GET** /cells | Fetches all Cells
 
 
 ## Documentation For Models
@@ -92,8 +88,6 @@ Class | Method | HTTP request | Description
  - [Cell](docs/Cell.md)
  - [Cells](docs/Cells.md)
  - [Error](docs/Error.md)
- - [Test](docs/Test.md)
- - [Tests](docs/Tests.md)
 
 
 ## Documentation For Authorization

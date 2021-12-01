@@ -2,7 +2,7 @@ FROM python:3.7 as base
 RUN apt-get update
 COPY requirements.txt /requirements.txt
 RUN pip install -r requirements.txt
-ENV PYTHONPATH "${PYTHONPATH}:/bas/scripts:/bas/src:/bas/bin:/bas/src/utils:/bas/src/app"
+ENV PYTHONPATH "${PYTHONPATH}:/bas/scripts:/bas/src:/bas/bin:/bas/src/utils:/bas/src/app:/bas/src/app/api:/bas/src/app/api/py:/bas/src/app/api/openapi_client"
 
 FROM base as test
 COPY requirements-test.txt /requirements-test.txt

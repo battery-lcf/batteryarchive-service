@@ -12,5 +12,3 @@
 from openapi_client.model.cell import Cell
 from openapi_client.model.cells import Cells
 from openapi_client.model.error import Error
-from openapi_client.model.test import Test
-from openapi_client.model.tests import Tests

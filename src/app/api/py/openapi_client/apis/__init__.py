@@ -15,4 +15,3 @@
 
 # Import APIs into API package:
 from openapi_client.api.cells_api import CellsApi
-from openapi_client.api.tests_api import TestsApi
