@@ -9,6 +9,10 @@ class TEST_TYPE(Enum):
     ABUSE = "abuse"
     CYCLE = "cycle"
 
+class FORMAT(Enum):
+    CSV = "csv"
+    FEATHER = "feather"
+    XLSX = "xlsx"
 
 class TESTER(Enum):
     ORNL = "ornl"

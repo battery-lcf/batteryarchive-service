@@ -367,22 +367,11 @@ class ArchiveExporter:
         return csv_file
 
     @staticmethod
-    def write_cell_to_csv(cell, path, suffix):
-        cell_id_to_file = cell.cell_id.replace(r"/", "-")
-        csv_file = path + cell_id_to_file + "_" + suffix + ".csv"
-        if ~cell.data:
-            return "No Data"  #raise No Cell Data Exception
-        cell.data.to_csv(csv_file, encoding="utf-8", index=False)
-        return csv_file
-
-    @staticmethod
     def write_to_feather(df, cell_id, path, suffix):
         cell_id_to_file = cell_id.replace(r"/", "-")
         feather_file = path + cell_id_to_file + "_" + suffix + ".feather"
-        df.to_feather(feather_file)
+        df.reset_index().to_feather(feather_file)
         return feather_file
-
-
 
 
 # Function to convert a list to a string
