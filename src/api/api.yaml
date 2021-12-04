@@ -6,7 +6,7 @@ paths:
   /cells:
     get:
       summary: Fetches all Cells
-      x-openapi-router-controller: app.api.controllers.cell_controller
+      x-openapi-router-controller: api.controllers.cell_controller
       operationId: get_cells
       tags:
         - cells

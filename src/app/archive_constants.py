@@ -90,4 +90,4 @@ class LABEL(Enum):
     FILENAME = "filename"
 
 
-TEST_DB_URL = "sqlite:///tests/test-data/tmp/bas-test.db"
+DB_URL = "sqlite:///tests/test-data/tmp/bas-test.db"

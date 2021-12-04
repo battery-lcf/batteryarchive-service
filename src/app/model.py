@@ -12,7 +12,7 @@ from sqlalchemy.sql.sqltypes import FLOAT
 from cell import ArchiveCell
 from aio import ArchiveWriter
 from archive_constants import (LABEL, DEGREE, OUTPUT_LABELS, SLASH,
-                               ARCHIVE_TABLE, CELL_LIST_FILE_NAME, TEST_DB_URL)
+                               ARCHIVE_TABLE, CELL_LIST_FILE_NAME, DB_URL)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -60,6 +60,18 @@ class CellMeta(Model):
     test = Column(TEXT, nullable=True)
     tester = Column(TEXT, nullable=True)
 
+    def to_dict(self):
+        return {
+            "id":self.id,
+            "cell_id":self.cell_id,
+            "anode":self.anode,
+            "cathode":self.cathode,            
+            "source":self.source,
+            "ah":self.ah,
+            "form_factor":self.form_factor,
+            "test":self.test,
+            "tester":self.tester
+        }
 
 class CycleMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_META.value
@@ -122,7 +134,7 @@ Archive Operator
 
 
 class ArchiveOperator:
-    def __init__(self, url=TEST_DB_URL, config={}):
+    def __init__(self, url=DB_URL, config={}):
         engine = create_engine(url, **config)
         Model.metadata.create_all(engine)
         self.session = scoped_session(
