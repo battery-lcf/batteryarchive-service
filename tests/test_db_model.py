@@ -3,8 +3,9 @@ from os.path import exists
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from src.app.model import ArchiveOperator, CycleMeta, CycleTimeSeries, Model
+from src.app.model import CycleMeta, CycleTimeSeries, Model
 from src.app.archive_constants import DB_URL
+from src.api.controllers.cell_controller import export_cells_to_csv, export_cells_to_feather, import_cells_xls_to_db, update_cycle_cells, write_cycle_meta_data_csv, write_timeseries_data_csv
 
 tmpBasePath = "/bas/tests/test-data/tmp/"
 os.makedirs(tmpBasePath, exist_ok=True)
@@ -50,8 +51,7 @@ def test_generate_cycle_data(db_session):
                               crate_d=1.0)
     db_session.add(new_CycleData)
     db_session.commit()
-    ao = ArchiveOperator(DB_URL)
-    ao.generate_cycle_data(cell_id, tmpBasePath)
+    write_cycle_meta_data_csv(cell_id, tmpBasePath)
     assert exists(output_file)
     db_session.delete(new_CycleData)
     db_session.commit()
@@ -79,8 +79,7 @@ def test_generate_timeseries_data(db_session):
     )
     db_session.add(new_Timeseries)
     db_session.commit()
-    ao = ArchiveOperator(DB_URL)
-    ao.generate_timeseries_data(cell_id, tmpBasePath)
+    write_timeseries_data_csv(cell_id, tmpBasePath)
     assert exists(output_file)
     db_session.delete(new_Timeseries)
     db_session.commit()
@@ -91,8 +90,7 @@ def test_generate_timeseries_data(db_session):
 def test_add_abuse_cells_to_database(db_session):
     cell_lists_path = "/bas/tests/test-data/abuse/"
     Model.metadata.drop_all(db_session.bind)
-    ao = ArchiveOperator(DB_URL)
-    assert ao.add_cells_xls_to_db(cell_lists_path)
+    assert import_cells_xls_to_db(cell_lists_path)
 
 
 def test_add_cycle_cells_to_database(db_session):
@@ -100,19 +98,30 @@ def test_add_cycle_cells_to_database(db_session):
     temp_file_path = (
         "/bas/tests/test-data/cycle/MACCOR_example/MACCOR_example.txt_df")
     Model.metadata.drop_all(db_session.bind)
-    ao = ArchiveOperator(DB_URL)
-    assert ao.add_cells_xls_to_db(cell_lists_path)
+    assert import_cells_xls_to_db(cell_lists_path)
     os.remove(temp_file_path)
 
 
-def test_export_cells(db_session):
+def test_add_cycle_cells_to_database_full(db_session):
+    cell_lists_path = "/bas/tests/test-data/feather/in/cycle/"
+    Model.metadata.drop_all(db_session.bind)
+    assert import_cells_xls_to_db(cell_lists_path)
+
+
+def test_export_cells_to_feather(db_session):
+    cell_lists_path = "/bas/tests/test-data/feather/in/cycle/"
+    out = "/bas/tests/test-data/feather/out/cycle/"
+    export_cells_to_feather(db_session, cell_lists_path, out)
+    assert True
+
+
+def test_export_db_to_csv(db_session):
     cell_lists_path = "/bas/tests/test-data/cycle/"
     temp_file_path = (
         "/bas/tests/test-data/cycle/MACCOR_example/MACCOR_example.txt_df")
     Model.metadata.drop_all(db_session.bind)
-    ao = ArchiveOperator(DB_URL)
-    ao.add_cells_xls_to_db(cell_lists_path)
-    ao.export_cells(cell_lists_path, tmpBasePath)
+    import_cells_xls_to_db(cell_lists_path)
+    export_cells_to_csv(db_session, cell_lists_path, tmpBasePath)
     assert exists(temp_file_path)
     os.remove(temp_file_path)
     assert ~exists(temp_file_path)
@@ -120,7 +129,5 @@ def test_export_cells(db_session):
 
 def test_update_cycle_cells(db_session):
     cell_lists_path = "/bas/tests/test-data/cycle/"
-    ao = ArchiveOperator(DB_URL)
-    ao.add_cells_xls_to_db(cell_lists_path)
-    assert ao.update_cycle_cells(cell_lists_path)
-
+    import_cells_xls_to_db(cell_lists_path)
+    assert update_cycle_cells(db_session, cell_lists_path)

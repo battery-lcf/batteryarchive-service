@@ -88,6 +88,7 @@ class LABEL(Enum):
     STRAIN = "strain"
     CYCLE_INDEX_FILE = "cycle_index_file"
     FILENAME = "filename"
+    FILE_TYPE = "file_type"
 
 
 DB_URL = "sqlite:///tests/test-data/tmp/bas-test.db"

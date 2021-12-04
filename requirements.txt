@@ -11,3 +11,4 @@ Flask
 gunicorn
 configparser
 connexion[swagger-ui]
+pyarrow

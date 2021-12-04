@@ -9,8 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 import pandas as pd
 from sqlalchemy.sql.sqltypes import FLOAT
-from cell import ArchiveCell
-from aio import ArchiveWriter
+from archive_cell import ArchiveCell
 from archive_constants import (LABEL, DEGREE, OUTPUT_LABELS, SLASH,
                                ARCHIVE_TABLE, CELL_LIST_FILE_NAME, DB_URL)
 from sqlalchemy import create_engine
@@ -47,6 +46,23 @@ class AbuseTimeSeries(Model):
     test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "axial_d": self.axial_d,
+            "axial_f": self.axial_f,
+            "v": self.v,
+            "strain": self.strain,
+            "temp_1": self.temp_1,
+            "temp_2": self.temp_2,
+            "temp_3": self.temp_3,
+            "temp_4": self.temp_4,
+            "temp_5": self.temp_5,
+            "temp_6": self.temp_6,
+            "test_time": self.test_time,
+            "cell_id": self.cell_id
+        }
+
 
 class CellMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CELL_META.value
@@ -62,16 +78,17 @@ class CellMeta(Model):
 
     def to_dict(self):
         return {
-            "id":self.id,
-            "cell_id":self.cell_id,
-            "anode":self.anode,
-            "cathode":self.cathode,            
-            "source":self.source,
-            "ah":self.ah,
-            "form_factor":self.form_factor,
-            "test":self.test,
-            "tester":self.tester
+            "id": self.id,
+            "cell_id": self.cell_id,
+            "anode": self.anode,
+            "cathode": self.cathode,
+            "source": self.source,
+            "ah": self.ah,
+            "form_factor": self.form_factor,
+            "test": self.test,
+            "tester": self.tester
         }
+
 
 class CycleMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_META.value
@@ -84,6 +101,19 @@ class CycleMeta(Model):
     crate_c = Column(Float, nullable=True)
     crate_d = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "temperature": self.temperature,
+            "soc_max": self.soc_max,
+            "soc_min": self.soc_min,
+            "v_max": self.v_max,
+            "v_min": self.v_min,
+            "crate_c": self.crate_c,
+            "crate_d": self.crate_d,
+            "cell_id": self.cell_id
+        }
 
 
 class CycleStats(Model):
@@ -122,6 +152,24 @@ class CycleTimeSeries(Model):
     cycle_index = Column(Integer, nullable=True)
     test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "i": self.i,
+            "v": self.v,
+            "ah_c": self.ah_c,
+            "ah_d": self.ah_d,
+            "temp_1": self.temp_1,
+            "temp_2": self.temp_2,
+            "e_c": self.e_c,
+            "e_d": self.e_d,
+            "cycle_time": self.cycle_time,
+            "date_time": self.date_time,
+            "cycle_index": self.cycle_index,
+            "test_time": self.test_time,
+            "cell_id": self.cell_id
+        }
 
 
 """
@@ -216,6 +264,9 @@ class ArchiveOperator:
         df = df.round(DEGREE)
         return df
 
+    def write_cycle_timeseries(self):
+        pass
+
     def update_data(self, table):
         pass
 
@@ -232,98 +283,35 @@ class ArchiveOperator:
         self.delete_cell_from_table(AbuseTimeSeries, cell_id)
 
     """
-    generate_cycle_data queries data from the database and exports to csv
-
-    :param cell_id: Absolute Path to the cell_list directory
-    :param path: Path to the cell_list directory
-    :return: Boolean True if method succeeds False if method fails
+    getters
     """
 
-    def generate_cycle_data(self, cell_id: str, path: str):
-        df = self.read_cycle_metadata(cell_id)
-        return ArchiveWriter.write_to_csv(df, cell_id, path, "cycle_data")
+    def get_all_cell_meta(self):
+        return self.get_all_data_from_table(CellMeta)
 
-    """
-    generate_timeseries_data queries data from the database and exports to csv
+    def get_all_cell_meta_with_id(self, cell_id):
+        return self.get_all_data_from_table_with_id(CellMeta, cell_id)
 
-    :param session: Database session that 
-    :param cell_id: Absolute Path to the cell_list directory
-    :param path: Path to the cell_list directory
-    :return: Boolean True if successful False if method fails
-    """
+    def get_all_cycle_meta(self):
+        return self.get_all_data_from_table(CycleMeta)
 
-    def generate_timeseries_data(self, cell_id, path):
-        df = self.read_cycle_timeseries(cell_id)
-        return ArchiveWriter.write_to_csv(df, cell_id, path, "timeseries_data")
+    def get_all_cycle_meta_with_id(self, cell_id):
+        return self.get_all_data_from_table_with_id(CycleMeta, cell_id)
 
-    """
-    output_cycle_series_to_csv adds cells defined in cell_list and add
+    def get_all_abuse_meta(self):
+        return self.get_all_data_from_table(AbuseMeta)
 
-    :param cell_id: Absolute Path to the cell_list directory
-    :param path: Path to the cell_list directory
-    :return: Boolean True if successful False if method fails
-    """
+    def get_all_abuse_meta_with_id(self, cell_id):
+        return self.get_all_data_from_table_with_id(AbuseMeta, cell_id)
 
-    def output_cycle_series_to_csv(self, cell_id, path):
-        query = select([
-            CycleMeta.v_max.label(OUTPUT_LABELS.VOLTAGE.value),
-        ])
-        df = pd.read_sql(self.session.query(query))
-        ArchiveWriter.write_to_csv(self.session, df, cell_id, path,
-                                   "cycle_data")
+    def get_all_cycle_ts_data(self):
+        return self.get_all_data_from_table(CycleTimeSeries)
 
-    """
-    add_cells_xls_to_db adds cells in excel file at cell_list_path to database
+    def get_all_abuse_ts_data(self):
+        return self.get_all_data_from_table(AbuseTimeSeries)
 
-    :param cell_list_path: Path to the cell_list directory
-    :return: Boolean True if successful False if method fails
-    """
+    def get_all_data_from_table(self, table):
+        return self.session.query(table).all()
 
-    def add_cells_xls_to_db(self, cell_list_path):
-        df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
-        cells = []
-        for i in df_excel.index:
-            cell = ArchiveCell(cell_id=df_excel[LABEL.CELL_ID.value][i],
-                               test_type=str(df_excel[LABEL.TEST.value][i]),
-                               file_id=df_excel[LABEL.FILE_ID.value][i],
-                               tester=df_excel[LABEL.TESTER.value][i],
-                               file_path=cell_list_path +
-                               df_excel[LABEL.FILE_ID.value][i] + SLASH,
-                               metadata=df_excel.iloc[i])
-            cells.append(cell)
-        return self.add_cells_to_db(cells)
-
-    def get_all_cells(self):
-        return self.session.query(CellMeta).all()
-
-    def get_cell_with_id(self, cell_id):
-        return self.session.query(CellMeta).filter(
-            CellMeta.cell_id == cell_id).all()
-
-    def export_cells(self, cell_list_path, path):
-        df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
-        for i in df_excel.index:
-            cell_id = df_excel[LABEL.CELL_ID.value][i]
-            query = self.session.query(CellMeta).filter(
-                CellMeta.cell_id == cell_id)
-            df = pd.read_sql(query.statement, self.session.bind)
-            df = df[df[LABEL.CELL_ID.value] == cell_id]
-            df = df.round(DEGREE)
-            if not df.empty:
-                self.generate_cycle_data(cell_id, path)
-                self.generate_timeseries_data(cell_id, path)
-
-    def update_cycle_cells(self, cell_list_path):
-        df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
-
-        for i in df_excel.index:
-            cell_id = df_excel[LABEL.CELL_ID.value][i]
-            query = self.session.query(CellMeta).filter(
-                CellMeta.cell_id == cell_id)
-            df = pd.read_sql(query.statement, self.session.bind)
-            if df.empty:
-                print("cell:" + cell_id + " not found")
-                continue
-            self.delete_cell_from_database(cell_id)
-        self.add_cells_xls_to_db(cell_list_path)
-        return True
+    def get_all_data_from_table_with_id(self, table, cell_id):
+        return self.session.query(table).filter(table.cell_id == cell_id).all()
