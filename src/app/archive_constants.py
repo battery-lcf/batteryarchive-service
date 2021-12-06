@@ -1,9 +1,10 @@
-from enum import Enum
+from enum import Enum, auto
 
 SLASH = "/"
 
 DEGREE = 3
 CELL_LIST_FILE_NAME = "cell_list.xlsx"
+DB_URL = "sqlite:///tests/test-data/tmp/bas-test.db"
 
 class TEST_TYPE(Enum):
     ABUSE = "abuse"
@@ -29,6 +30,30 @@ class ARCHIVE_TABLE(Enum):
     CYCLE_STATS = "cycle_stats"
     CYCLE_TS = "cycle_timeseries"
 
+class INP_LABELS(Enum):
+    TEST_TIME = "Running Time"
+    AXIAL_D = "Axial Displacement"
+    AXIAL_F = "Axial Force"
+    V = "Analog 1"
+    TC_01 = "TC 01"
+    TC_02 = "TC 02"
+    TC_03 = "TC 03"
+    TC_04 = "TC 04"
+    TC_05 = "TC 05"
+    TC_06 = "TC 06"
+
+class ARCHIVE_COLS(Enum):
+    TEST_TIME = "test_time"
+    AXIAL_D = "axial_d"
+    AXIAL_F = "axial_f"
+    I = "i"
+    V = "v"
+    temp_1 = "temp1"
+    temp_2 = "temp2"
+    temp_3 = "temp3"
+    temp_4 = "temp4"
+    temp_5 = "temp5"
+    temp_6 = "temp6"
 
 class OUTPUT_LABELS(Enum):
     CYCLE_INDEX = "Cycle_Index"
@@ -93,6 +118,3 @@ class LABEL(Enum):
     CYCLE_INDEX_FILE = "cycle_index_file"
     FILENAME = "filename"
     FILE_TYPE = "file_type"
-
-
-DB_URL = "sqlite:///tests/test-data/tmp/bas-test.db"

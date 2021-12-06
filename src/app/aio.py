@@ -2,7 +2,7 @@ import glob
 import logging
 import pandas as pd
 import os
-from archive_constants import (TEST_TYPE, TESTER)
+from archive_constants import (TEST_TYPE, TESTER, INP_LABELS, ARCHIVE_COLS, FORMAT)
 from converter import (sort_timeseries)
 
 
@@ -80,9 +80,9 @@ class CellTestReader:
                 if '~$' in cellpath:
                     continue
                 df_cell = []
-                if file_type == 'xlsx':
+                if file_type == FORMAT.XLSX.value:
                     df_cell = pd.read_excel(cellpath, None)
-                if file_type == 'feather':
+                if file_type == FORMAT.FEATHER.value:
                     df_cell = pd.read_feather(cellpath, None)
                 # Find the time series sheet in the excel file
                 for k in df_cell.keys():
@@ -92,32 +92,29 @@ class CellTestReader:
 
                         df_time_series_file = df_cell[timeseries]
 
-                        df_time_series = pd.DataFrame()
+                        df_ts = pd.DataFrame()
 
-                        df_time_series[
-                            'cycle_index_file'] = df_time_series_file[
-                                'Cycle_Index']
-                        df_time_series['test_time'] = df_time_series_file[
+                        df_ts['cycle_index_file'] = df_time_series_file[
+                            'Cycle_Index']
+                        df_ts['test_time'] = df_time_series_file[
                             'Test_Time(s)']
-                        df_time_series['i'] = df_time_series_file['Current(A)']
-                        df_time_series['v'] = df_time_series_file['Voltage(V)']
-                        df_time_series['date_time'] = df_time_series_file[
-                            'Date_Time']
-                        df_time_series['filename'] = filename
+                        df_ts['i'] = df_time_series_file['Current(A)']
+                        df_ts['v'] = df_time_series_file['Voltage(V)']
+                        df_ts['date_time'] = df_time_series_file['Date_Time']
+                        df_ts['filename'] = filename
 
                         #if not df_time_series_file['Temperature (C)_1'].empty:
                         #    df_time_series['temp_2'] = df_time_series_file['Temperature (C)_1']
 
-                        df_time_series['ah_c'] = 0
-                        df_time_series['e_c'] = 0
-                        df_time_series['ah_d'] = 0
-                        df_time_series['e_d'] = 0
+                        df_ts['ah_c'] = 0
+                        df_ts['e_c'] = 0
+                        df_ts['ah_d'] = 0
+                        df_ts['e_d'] = 0
                         #df_time_series['cell_id'] = cell_id
-                        df_time_series['cycle_index'] = 0
-                        df_time_series['cycle_time'] = 0
+                        df_ts['cycle_index'] = 0
+                        df_ts['cycle_time'] = 0
 
-                        cycles_index = df_time_series[["cycle_index_file"
-                                                       ]].to_numpy()
+                        cycles_index = df_ts[["cycle_index_file"]].to_numpy()
                         past_cycle = 0
                         start = 0
 
@@ -132,13 +129,12 @@ class CellTestReader:
 
                         df_tmp = pd.DataFrame(data=cycles_index[:, [0]],
                                               columns=["cycle_index_file"])
-                        df_time_series['cycle_index_file'] = df_tmp[
-                            'cycle_index_file']
+                        df_ts['cycle_index_file'] = df_tmp['cycle_index_file']
 
                         if df_tmerge.empty:
-                            df_tmerge = df_time_series
+                            df_tmerge = df_ts
                         else:
-                            df_tmerge = df_tmerge.append(df_time_series,
+                            df_tmerge = df_tmerge.append(df_ts,
                                                          ignore_index=True)
 
         return df_tmerge
@@ -244,46 +240,47 @@ class CellTestReader:
         for excel in excels:
             if '~$' in excel:
                 continue
-            df_time_series_file = pd.read_excel(
+            df_ts_file = pd.read_excel(
                 excel, sheet_name='data')  # dictionary of sheets
 
-            df_time_series_a = pd.DataFrame()
-            df_time_series_a['test_time'] = df_time_series_file['Running Time']
-            df_time_series_a['axial_d'] = df_time_series_file[
-                'Axial Displacement']
-            df_time_series_a['v'] = df_time_series_file['Analog 1']
-            df_time_series_a['axial_f'] = df_time_series_file['Axial Force']
-            df_time_series_a['temp_1'] = 0
-            df_time_series_a['temp_2'] = 0
-            df_time_series_a['temp_3'] = 0
-            df_time_series_a['temp_4'] = 0
-            df_time_series_a['temp_5'] = 0
-            df_time_series_a['temp_6'] = 0
+            df_ts_a = pd.DataFrame()
+            df_ts_a['test_time'] = df_ts_file['Running Time']
+            df_ts_a['axial_d'] = df_ts_file['Axial Displacement']
+            df_ts_a['v'] = df_ts_file['Analog 1']
+            df_ts_a['axial_f'] = df_ts_file['Axial Force']
+            df_ts_a['temp_1'] = 0
+            df_ts_a['temp_2'] = 0
+            df_ts_a['temp_3'] = 0
+            df_ts_a['temp_4'] = 0
+            df_ts_a['temp_5'] = 0
+            df_ts_a['temp_6'] = 0
             #df_time_series_a['cell_id'] = cell_id
 
-            df_time_series_b = pd.DataFrame()
-            df_time_series_b['test_time'] = df_time_series_file[
-                'Running Time 1']
-            df_time_series_b['axial_d'] = 0
-            df_time_series_b['v'] = 0
-            df_time_series_b['axial_f'] = 0
-            df_time_series_b['temp_1'] = df_time_series_file['TC 01']
-            df_time_series_b['temp_2'] = df_time_series_file['TC 02']
-            df_time_series_b['temp_3'] = df_time_series_file['TC 03']
-            df_time_series_b['temp_4'] = df_time_series_file['TC 04']
-            df_time_series_b['temp_5'] = df_time_series_file['TC 05']
-            df_time_series_b['temp_6'] = df_time_series_file['TC 06']
+            df_ts_b = pd.DataFrame()
+            df_ts_b['test_time'] = df_ts_file['Running Time 1']
+            df_ts_b[ARCHIVE_COLS.AXIAL_D.value] = 0
+            df_ts_b[ARCHIVE_COLS.V.value] = 0
+            df_ts_b[ARCHIVE_COLS.AXIAL_F.value] = 0
+            df_ts_b[ARCHIVE_COLS.temp_1.value] = df_ts_file[
+                INP_LABELS.TC_01.value]
+            df_ts_b[ARCHIVE_COLS.temp_2.value] = df_ts_file[
+                INP_LABELS.TC_02.value]
+            df_ts_b[ARCHIVE_COLS.temp_3.value] = df_ts_file[
+                INP_LABELS.TC_03.value]
+            df_ts_b[ARCHIVE_COLS.temp_4.value] = df_ts_file[
+                INP_LABELS.TC_04.value]
+            df_ts_b[ARCHIVE_COLS.temp_5.value] = df_ts_file[
+                INP_LABELS.TC_05.value]
+            df_ts_b[ARCHIVE_COLS.temp_6.value] = df_ts_file[
+                INP_LABELS.TC_06.value]
             #df_time_series_b['cell_id'] = cell_id
 
             if df_tmerge.empty:
-                df_tmerge = df_time_series_a
-                df_tmerge = df_tmerge.append(df_time_series_b,
-                                             ignore_index=True)
+                df_tmerge = df_ts_a
+                df_tmerge = df_tmerge.append(df_ts_b, ignore_index=True)
             else:
-                df_tmerge = df_tmerge.append(df_time_series_a,
-                                             ignore_index=True)
-                df_tmerge = df_tmerge.append(df_time_series_b,
-                                             ignore_index=True)
+                df_tmerge = df_tmerge.append(df_ts_a, ignore_index=True)
+                df_tmerge = df_tmerge.append(df_ts_b, ignore_index=True)
 
         return df_tmerge
 
@@ -298,27 +295,35 @@ class CellTestReader:
         for excel in excels:
             if '~$' in excel:
                 continue
-            df_time_series_file = pd.read_excel(
+            df_ts_file = pd.read_excel(
                 excel, sheet_name='data')  # dictionary of sheets
 
-            df_time_series = pd.DataFrame()
-            df_time_series['test_time'] = df_time_series_file['Running Time']
-            df_time_series['axial_d'] = df_time_series_file[
-                'Axial Displacement']
-            df_time_series['axial_f'] = df_time_series_file['Axial Force']
-            df_time_series['v'] = df_time_series_file['Analog 1']
-            df_time_series['temp_1'] = df_time_series_file['TC 01']
-            df_time_series['temp_2'] = df_time_series_file['TC 02']
-            df_time_series['temp_3'] = df_time_series_file['TC 03']
-            df_time_series['temp_4'] = df_time_series_file['TC 04']
-            df_time_series['temp_5'] = df_time_series_file['TC 05']
-            df_time_series['temp_6'] = df_time_series_file['TC 06']
+            df_ts = pd.DataFrame()
+            df_ts[ARCHIVE_COLS.TEST_TIME.value] = df_ts_file[
+                INP_LABELS.TEST_TIME.value]
+            df_ts[ARCHIVE_COLS.AXIAL_D.value] = df_ts_file[
+                INP_LABELS.AXIAL_D.value]
+            df_ts[ARCHIVE_COLS.AXIAL_F.value] = df_ts_file[
+                INP_LABELS.AXIAL_F.value]
+            df_ts[ARCHIVE_COLS.V.value] = df_ts_file[INP_LABELS.V.value]
+            df_ts[ARCHIVE_COLS.temp_1.value] = df_ts_file[
+                INP_LABELS.TC_01.value]
+            df_ts[ARCHIVE_COLS.temp_2.value] = df_ts_file[
+                INP_LABELS.TC_02.value]
+            df_ts[ARCHIVE_COLS.temp_3.value] = df_ts_file[
+                INP_LABELS.TC_03.value]
+            df_ts[ARCHIVE_COLS.temp_4.value] = df_ts_file[
+                INP_LABELS.TC_04.value]
+            df_ts[ARCHIVE_COLS.temp_5.value] = df_ts_file[
+                INP_LABELS.TC_05.value]
+            df_ts[ARCHIVE_COLS.temp_6.value] = df_ts_file[
+                INP_LABELS.TC_06.value]
             #df_time_series['cell_id'] = cell_id
 
             if df_tmerge.empty:
-                df_tmerge = df_time_series
+                df_tmerge = df_ts
             else:
-                df_tmerge = df_tmerge.append(df_time_series, ignore_index=True)
+                df_tmerge = df_tmerge.append(df_ts, ignore_index=True)
 
         return df_tmerge
 

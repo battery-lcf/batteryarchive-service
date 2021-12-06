@@ -287,6 +287,7 @@ class ArchiveOperator:
 
     def get_all_abuse_ts_with_id(self, cell_id):
         return self.get_all_data_from_table_with_id(AbuseTimeSeries, cell_id)
+        
     # CYCLE
 
     def get_df_cycle_meta_with_id(self, cell_id):
