@@ -48,12 +48,12 @@ class ARCHIVE_COLS(Enum):
     AXIAL_F = "axial_f"
     I = "i"
     V = "v"
-    temp_1 = "temp1"
-    temp_2 = "temp2"
-    temp_3 = "temp3"
-    temp_4 = "temp4"
-    temp_5 = "temp5"
-    temp_6 = "temp6"
+    temp_1 = "temp_1"
+    temp_2 = "temp_2"
+    temp_3 = "temp_3"
+    temp_4 = "temp_4"
+    temp_5 = "temp_5"
+    temp_6 = "temp_6"
 
 class OUTPUT_LABELS(Enum):
     CYCLE_INDEX = "Cycle_Index"
