@@ -138,9 +138,9 @@ def test_calc_cycle_stats():
 
 
 def test_prepare_maccor_file():
-    maccor_file = "/bas/data/01_raw/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt"
+    maccor_file = "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt"
     result_path = (
-        "/bas/data/01_raw/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt_df"
+        "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt_df"
     )
     cellpath_df = di.prepare_maccor_file(maccor_file)
     assert cellpath_df == result_path
@@ -283,7 +283,7 @@ def test_read_snlabuse():
 
 def test_read_maccor():
     cell_id = "maccor"
-    maccor_file = "/bas/data/01_raw/data_set_samples/cycle/MACCOR_example/"
+    maccor_file = "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/"
     df_output = di.read_maccor(cell_id, maccor_file)
     assert len(df_output) == 4699
     os.remove(maccor_file + "MACCOR_example.txt_df")
