@@ -1,10 +1,13 @@
-from app.archive_constants import TEST_TYPE, TESTER
-from converter import (calc_cycle_quantities, calc_cycle_stats,
+from src.app.archive_constants import TEST_TYPE, TESTER
+from src.app.converter import (calc_cycle_quantities, calc_cycle_stats,
                        calc_abuse_stats, sort_timeseries, split_abuse_metadata)
-from aio import CellTestReader, listToString, signedCurrent
+from src.app.aio import CellTestReader, listToString, signedCurrent
 import pandas as pd
 import os
 
+testDataBasePath = "/bas/tests/test-data/"
+rawTestDataPath = "/bas/tests/test_data/01_raw/"
+tmpBasePath = testDataBasePath + "tmp/"
 
 def df_print(output, result):
     for i in output:
@@ -141,9 +144,9 @@ def test_calc_cycle_stats():
 
 
 def test_prepare_maccor_file():
-    maccor_file = "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt"
+    maccor_file = rawTestDataPath + "cycle/MACCOR_example/MACCOR_example.txt"
     result_path = (
-        "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt_df"
+        rawTestDataPath + "cycle/MACCOR_example/MACCOR_example.txt_df"
     )
     cellpath_df = CellTestReader(TESTER.MACCOR, TEST_TYPE.CYCLE).prepare_maccor_file(maccor_file)
     assert cellpath_df == result_path
@@ -158,8 +161,7 @@ def test_signedCurrent():
 
 
 def test_read_ornlabuse():
-    cell_id = "S1Abuse"
-    file_path = "/bas/tests/test-data/abuse-ornl/"
+    file_path = rawTestDataPath+"abuse-ornl/"
     output_df = CellTestReader(TESTER.ORNL, TEST_TYPE.ABUSE).read_ornlabuse(file_path)
     result_df_cols = [
         "test_time",
@@ -230,8 +232,7 @@ def test_read_ornlabuse():
 
 
 def test_read_snlabuse():
-    cell_id = "S2Abuse"
-    file_path = "/bas/tests/test-data/abuse-snl/"
+    file_path = rawTestDataPath + "abuse-snl/"
     output_df = CellTestReader(TESTER.SNL, TEST_TYPE.ABUSE).read_snlabuse(file_path)
     result_df_cols = [
         "test_time",
@@ -277,16 +278,14 @@ def test_read_snlabuse():
 
 
 def test_read_maccor():
-    cell_id = "maccor"
-    maccor_file = "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/"
+    maccor_file = rawTestDataPath + "cycle/MACCOR_example/"
     df_output = CellTestReader(TESTER.MACCOR, TEST_TYPE.CYCLE).read_maccor(maccor_file)
-    assert len(df_output) == 4699
+    assert len(df_output) == 499
     os.remove(maccor_file + "MACCOR_example.txt_df")
 
 
 def test_read_arbin():
-    cell_id = "arbin"
-    arbin_file = "/bas/tests/test-data/cycle-arbin/"
+    arbin_file = rawTestDataPath + "cycle-arbin/"
     df_output = CellTestReader(TESTER.ARBIN, TEST_TYPE.CYCLE).read_arbin(arbin_file)
     assert len(df_output) == 119
 

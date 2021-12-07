@@ -1,0 +1,2 @@
+index,temperature,soc_max,soc_min,v_max,v_min,crate_c,crate_d,cell_id
+1,25.0,100.0,10.0,,,0.5,1.0,LG_MJ1

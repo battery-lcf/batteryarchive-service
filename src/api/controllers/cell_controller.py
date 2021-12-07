@@ -89,32 +89,24 @@ def get_meta_with_id(cell_id, test_name):
 # EXPORTERS
 
 
-def export_cycle_cells_to_csv(session, cell_list_path, path):
+def export_cycle_cells_to_fmt(cell_list_path,
+                              output_path: str,
+                              fmt: str = "csv"):
+    #TODO: This implies cell_list must be xlsx, this can be written in CSV
     df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
-    for i in df_excel.index:
-        cell_id = df_excel[LABEL.CELL_ID.value][i]
-        query = session.query(CellMeta).filter(CellMeta.cell_id == cell_id)
-        df = pd.read_sql(query.statement, session.bind)
-        df = df[df[LABEL.CELL_ID.value] == cell_id]
-        df = df.round(DEGREE)
-        if not df.empty:
-            export_cycle_meta_data_with_id_to_csv(cell_id, path)
-            export_cycle_ts_data_csv(cell_id, path)
-
-
-def export_cycle_cells_to_format(cell_list_path, path, fmt="csv"):
-    df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
-    #TODO Refactor this to a join instead of looping slowly
+    #TODO: Refactor this to a join instead of looping slowly
     for i in df_excel.index:
         cell_id = df_excel[LABEL.CELL_ID.value][i]
         df = ArchiveOperator().lod_cell_meta_into_df_with_cell_id(cell_id)
         if not df.empty:
             if fmt == FORMAT.CSV.value:
-                export_cycle_meta_data_with_id_to_csv(cell_id, path)
-                export_cycle_ts_data_csv(cell_id, path)
+                export_cycle_meta_data_with_id_to_fmt(cell_id, output_path,
+                                                      FORMAT.CSV.value)
+                export_cycle_ts_data_csv(cell_id, output_path)
             if fmt == FORMAT.FEATHER.value:
-                export_cycle_meta_data_with_id_to_feather(cell_id, path)
-                export_cycle_ts_data_feather(cell_id, path)
+                export_cycle_meta_data_with_id_to_fmt(cell_id, output_path,
+                                                      FORMAT.FEATHER.value)
+                export_cycle_ts_data_feather(cell_id, output_path)
 
 
 """
@@ -126,24 +118,17 @@ generate_cycle_data queries data from the database and exports to csv
 """
 
 
-def export_cycle_meta_data_with_id_to_csv(cell_id: str, path: str):
-    return ArchiveExporter.write_to_csv(
-        ArchiveOperator().get_df_cycle_meta_with_id(cell_id), cell_id, path,
-        "cycle_data")
-
-
-def export_cycle_meta_data_with_id_to_feather(cell_id: str, path: str):
-    return ArchiveExporter.write_to_feather(
-        ArchiveOperator().get_df_cycle_meta_with_id(cell_id), cell_id, path,
-        "cycle_data")
-
-
-def export_cycle_meta_data_with_id_to_format(cell_id: str, path: str,
-                                             fmt: str):
+def export_cycle_meta_data_with_id_to_fmt(cell_id: str,
+                                          out_path: str,
+                                          fmt: str = "csv"):
     if fmt == FORMAT.CSV.value:
-        return export_cycle_meta_data_with_id_to_csv(cell_id, path)
+        return ArchiveExporter.write_to_csv(
+            ArchiveOperator().get_df_cycle_meta_with_id(cell_id), cell_id,
+            out_path, "cycle_data")
     if fmt == FORMAT.FEATHER.value:
-        return export_cycle_meta_data_with_id_to_feather(cell_id, path)
+        return ArchiveExporter.write_to_feather(
+            ArchiveOperator().get_df_cycle_meta_with_id(cell_id), cell_id,
+            out_path, "cycle_data")
 
 
 """

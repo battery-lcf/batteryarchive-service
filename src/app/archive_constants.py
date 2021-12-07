@@ -4,7 +4,7 @@ SLASH = "/"
 
 DEGREE = 3
 CELL_LIST_FILE_NAME = "cell_list.xlsx"
-DB_URL = "sqlite:///tests/test-data/tmp/bas-test.db"
+DB_URL = "sqlite:///tests/test_data/01_raw/tmp/bas-test.db"
 
 class TEST_TYPE(Enum):
     ABUSE = "abuse"

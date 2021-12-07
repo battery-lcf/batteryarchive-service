@@ -1,6 +1,13 @@
-import data_import as di
+from scripts.data_import import (read_maccor, read_arbin, read_ornlabuse,
+                                 read_snlabuse, listToString, calc_abuse_stats,
+                                 calc_cycle_quantities, calc_cycle_stats,
+                                 signedCurrent, sort_timeseries,
+                                 populate_abuse_metadata, prepare_maccor_file)
 import pandas as pd
 import os
+
+rawTestDataPath = "/bas/tests/test_data/01_raw/"
+tmpBasePath = rawTestDataPath + "tmp/"
 
 
 def df_print(output, result):
@@ -30,8 +37,8 @@ def test_always_passes():
 
 
 def test_listToString():
-    assert di.listToString(["x"]) == "x"
-    assert di.listToString(["x", "y", "z"]) == "xyz"
+    assert listToString(["x"]) == "x"
+    assert listToString(["x", "y", "z"]) == "xyz"
 
 
 def test_calc_cycle_quantities():
@@ -48,7 +55,7 @@ def test_calc_cycle_quantities():
         "cycle_time": 1,
     }]
     test_pd_df = pd.DataFrame(data=test_df, columns=cols)
-    output_test_pd_df = di.calc_cycle_quantities(test_pd_df)
+    output_test_pd_df = calc_cycle_quantities(test_pd_df)
     result_df = [{
         "test_time": 1,
         "i": 1,
@@ -71,7 +78,7 @@ def test_calc_abuse_stats():
     test_pd_df = pd.DataFrame(data=test_df, columns=test_cols)
 
     df_test_md = {"thickness": 1}
-    output_test_pd_df = di.calc_abuse_stats(test_pd_df, [], df_test_md)
+    output_test_pd_df = calc_abuse_stats(test_pd_df, [], df_test_md)
 
     result_cols = ["axial_d", "norm_d", "strain"]
     result_df = [{"axial_d": 1, "norm_d": 0, "strain": 0.0}]
@@ -87,7 +94,7 @@ def test_calc_cycle_stats():
     test_df = [{"cycle_index": 1, "cell_id": 1}]
     test_pd_df = pd.DataFrame(data=test_df, columns=test_cols)
 
-    output_dfc, output_dft = di.calc_cycle_stats(test_pd_df, [], [])
+    output_dfc, output_dft = calc_cycle_stats(test_pd_df, [], [])
     result_dfc_cols = [
         "cycle_index",
         "cell_id",
@@ -142,7 +149,7 @@ def test_prepare_maccor_file():
     result_path = (
         "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt_df"
     )
-    cellpath_df = di.prepare_maccor_file(maccor_file)
+    cellpath_df = prepare_maccor_file(maccor_file)
     assert cellpath_df == result_path
     assert os.path.exists(cellpath_df)
     os.remove(cellpath_df)
@@ -150,14 +157,14 @@ def test_prepare_maccor_file():
 
 
 def test_signedCurrent():
-    assert di.signedCurrent("D", 1) == -1
-    assert di.signedCurrent("X", 1) == 1
+    assert signedCurrent("D", 1) == -1
+    assert signedCurrent("X", 1) == 1
 
 
 def test_read_ornlabuse():
     cell_id = "S1Abuse"
-    file_path = "/bas/tests/test-data/abuse-ornl/"
-    output_df = di.read_ornlabuse(cell_id, file_path)
+    file_path = rawTestDataPath + "abuse-ornl/"
+    output_df = read_ornlabuse(cell_id, file_path)
     result_df_cols = [
         "test_time",
         "axial_d",
@@ -233,8 +240,8 @@ def test_read_ornlabuse():
 
 def test_read_snlabuse():
     cell_id = "S2Abuse"
-    file_path = "/bas/tests/test-data/abuse-snl/"
-    output_df = di.read_snlabuse(cell_id, file_path)
+    file_path = rawTestDataPath + "abuse-snl/"
+    output_df = read_snlabuse(cell_id, file_path)
     result_df_cols = [
         "test_time",
         "axial_d",
@@ -283,16 +290,16 @@ def test_read_snlabuse():
 
 def test_read_maccor():
     cell_id = "maccor"
-    maccor_file = "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/"
-    df_output = di.read_maccor(cell_id, maccor_file)
-    assert len(df_output) == 4699
+    maccor_file = rawTestDataPath + "cycle/MACCOR_example/"
+    df_output = read_maccor(cell_id, maccor_file)
+    assert len(df_output) == 499
     os.remove(maccor_file + "MACCOR_example.txt_df")
 
 
 def test_read_arbin():
     cell_id = "arbin"
-    arbin_file = "/bas/tests/test-data/cycle-arbin/"
-    df_output = di.read_arbin(cell_id, arbin_file)
+    arbin_file = rawTestDataPath + "cycle-arbin/"
+    df_output = read_arbin(cell_id, arbin_file)
     assert len(df_output) == 119
 
 
@@ -325,7 +332,7 @@ def test_sort_timeseries():
         },
     ]
     input_pd_df = pd.DataFrame(data=input_df, columns=input_df_cols)
-    output_pd_df = di.sort_timeseries(input_pd_df)
+    output_pd_df = sort_timeseries(input_pd_df)
 
     result_df_cols = [
         "date_time",
@@ -385,8 +392,7 @@ def test_populate_abuse_metadata():
         "nail_speed": 0,
     }]
     input_pd_df = pd.DataFrame(data=input_df, columns=input_df_cols)
-    output_df_cell_md, output_df_test_md = di.populate_abuse_metadata(
-        input_pd_df)
+    output_df_cell_md, output_df_test_md = populate_abuse_metadata(input_pd_df)
     assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 8
     assert len(output_df_test_md) == 1 and len(output_df_test_md.columns) == 6
 
@@ -424,7 +430,6 @@ def test_populate_cycle_metadata():
         "crate_d": 0,
     }]
     input_pd_df = pd.DataFrame(data=input_df, columns=input_df_cols)
-    output_df_cell_md, output_df_test_md = di.populate_abuse_metadata(
-        input_pd_df)
+    output_df_cell_md, output_df_test_md = populate_abuse_metadata(input_pd_df)
     assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 8
     assert len(output_df_test_md) == 1 and len(output_df_test_md.columns) == 6

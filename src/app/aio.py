@@ -4,6 +4,7 @@ import pandas as pd
 import os
 from archive_constants import (TEST_TYPE, TESTER, INP_LABELS, ARCHIVE_COLS, FORMAT)
 from converter import (sort_timeseries)
+import pyarrow.feather as feather
 
 
 class CellTestReader:
@@ -365,17 +366,18 @@ class ArchiveExporter:
     """
 
     @staticmethod
-    def write_to_csv(df, cell_id, path, suffix):
+    def write_to_csv(df, cell_id, out_path, suffix):
         cell_id_to_file = cell_id.replace(r"/", "-")
-        csv_file = path + cell_id_to_file + "_" + suffix + ".csv"
+        csv_file = out_path + cell_id_to_file + "_" + suffix + ".csv"
         df.to_csv(csv_file, encoding="utf-8", index=False)
         return csv_file
 
     @staticmethod
-    def write_to_feather(df, cell_id, path, suffix):
+    def write_to_feather(df, cell_id, out_path, suffix):
         cell_id_to_file = cell_id.replace(r"/", "-")
-        feather_file = path + cell_id_to_file + "_" + suffix + ".feather"
-        df.reset_index().to_feather(feather_file)
+        feather_file = out_path + cell_id_to_file + "_" + suffix + ".feather"
+        feather.write_feather(df, feather_file)
+        # df.reset_index().to_feather(feather_file)
         return feather_file
 
 
