@@ -37,7 +37,7 @@ def db_session(db_session_factory):
     session_.rollback()
     session_.close()
 
-
+@pytest.mark.skip(reason="test takes a long time to run")
 def test_export_cycle_cells_to_csv_full(db_session):
     cell_lists_path = "/bas/data/01_raw/default_user/data_set_samples/cycle/"
     assert import_cells_xls_to_db(cell_lists_path)
