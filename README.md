@@ -21,12 +21,25 @@ For more information, contact us at info@batteryarchive.org.
 
 ```
 
-## How To Test
+## How To Run Test Suite
 Single line joint command to build image and run pytests
 
 ```
 docker build . -t bas-test --target test && docker run bas-test
 ```
+
+## How To Run Prod
+As config has not yet been developed, prod leverages internal sqlite database which resides in path
+
+`tests/test_data/01_raw/tmp/bas-test.db` if it does not exist, run tests first.
+
+```
+docker build . -t bas-prod --target prod && docker run -p 5000:5000 -v $(pwd):/bas --rm  bas-prod
+```
+
+navigate browser to 0.0.0.0:5000/
+
+
 
 #
 Copyright 2021 National Technology & Engineering Solutions of Sandia, LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S. Government retains certain rights in this software.
