@@ -9,7 +9,7 @@ from src.app.archive_constants import (LABEL, DEGREE, SLASH,
 
 
 def root():
-    return "Hello World", 200
+    return 'Hello Battery Archive!', 200
 
 
 def liveness():
