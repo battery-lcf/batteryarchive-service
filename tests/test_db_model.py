@@ -116,7 +116,7 @@ def test_add_cycle_cells_to_database_full(db_session):
 
 def test_export_cells_to_feather():
     cell_id = "HC_VC"
-    out = rawTestDataPath + "tmp/out/cycle/"
+    out = rawTestDataPath + "tmp/"
     export_cycle_meta_data_with_id_to_fmt(cell_id, out, FORMAT.FEATHER.value)
     assert True
 
