@@ -81,3 +81,9 @@ services:
       - postgres
     links:
       - "ds-postgres:ds-postgres"
+  app:
+    image: bas-prod
+    ports:
+      - "4000:4000"
+    env_file: ./env
+    restart: always

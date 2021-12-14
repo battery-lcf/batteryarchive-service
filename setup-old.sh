@@ -8,7 +8,7 @@ SECRET_KEY=$(pwgen -1s 32)
 REDASH_ADMIN_PASSWORD=$(pwgen -1s 32)
 POSTGRES_PASSWORD=$(pwgen -1s 32)
 REDASH_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@postgres/postgres"
-DATABASE_CONNECTION="postgresql://postgres:${POSTGRES_PASSWORD}@localhost:5432/postgres"
+DATABASE_CONNECTION="postgresql://postgres:${POSTGRES_PASSWORD}@ds-postgres:5432/postgres"
 PGADMIN4_PASSWORD=$(pwgen -1s 32)
 HOST_IP_ADDRESS=$(ip -o route get to 8.8.8.8 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
 
@@ -31,6 +31,8 @@ echo "PGADMIN_DEFAULT_PASSWORD=$PGADMIN4_PASSWORD" >> env
 
 ## Run server create_db entrypoint. This runs
 ## /app/manage.py database create_tables
+
+# Run Locally
 sudo docker-compose run --rm server create_db
 
 ## Run server manage entrypoint. This runs

@@ -28,7 +28,8 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.abuse_metadata (
-    test_temperature numeric,
+    index numeric,
+    temp numeric,
     thickness numeric,
     v_init numeric,
     indentor numeric,
@@ -46,6 +47,7 @@ ALTER TABLE public.abuse_metadata OWNER TO postgres;
 --
 
 CREATE TABLE public.abuse_timeseries (
+    index numeric,
     axial_d numeric,
     axial_f numeric,
     v numeric,
@@ -71,6 +73,7 @@ ALTER TABLE public.abuse_timeseries OWNER TO postgres;
 --
 
 CREATE TABLE public.cell_metadata (
+    index numeric,
     cathode character varying(50),
     anode character varying(50),
     source character varying(50),
@@ -91,7 +94,8 @@ ALTER TABLE public.cell_metadata OWNER TO postgres;
 --
 
 CREATE TABLE public.cycle_metadata (
-    test_temperature numeric,
+    index numeric,
+    temp numeric,
     soc_max numeric,
     soc_min numeric,
     v_max numeric,
@@ -111,6 +115,7 @@ ALTER TABLE public.cycle_metadata OWNER TO postgres;
 --
 
 CREATE TABLE public.cycle_stats (
+    index numeric,
     v_max numeric,
     v_min numeric,
     ah_c numeric,
@@ -138,6 +143,7 @@ ALTER TABLE public.cycle_stats OWNER TO postgres;
 --
 
 CREATE TABLE public.cycle_timeseries (
+    index numeric,
     i numeric,
     v numeric,
     ah_c numeric,

@@ -14,4 +14,4 @@ CMD ["pytest", "-v", "--color=yes"]
 FROM base as prod
 COPY . /bas
 WORKDIR /bas
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "wsgi:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:4000", "wsgi:app"]

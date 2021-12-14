@@ -10,9 +10,8 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 import pandas as pd
 from sqlalchemy.sql.sqltypes import FLOAT
-from archive_cell import ArchiveCell
 from archive_constants import (LABEL, DEGREE, OUTPUT_LABELS, SLASH,
-                               ARCHIVE_TABLE, CELL_LIST_FILE_NAME, DB_URL)
+                               ARCHIVE_TABLE, CELL_LIST_FILE_NAME, TEST_DB_URL)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -188,9 +187,14 @@ Archive Operator
 - Performs all necessary SQL functions related to Archive db
 """
 
+import os
+
+
 
 class ArchiveOperator:
-    def __init__(self, url=DB_URL, config={}):
+    def __init__(self, config={}):
+        url = os.getenv('DATABASE_CONNECTION', TEST_DB_URL)
+
         engine = create_engine(url, **config)
         Model.metadata.create_all(engine)
         self.session = scoped_session(

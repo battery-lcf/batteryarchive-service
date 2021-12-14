@@ -5,6 +5,7 @@ import pandas as pd
 from src.app.archive_constants import (LABEL, DEGREE, SLASH,
                                        CELL_LIST_FILE_NAME, TEST_TYPE, FORMAT)
 
+
 # Routes
 
 
@@ -25,6 +26,7 @@ def get_cells():
     Gets all cells
     :rtype: list of Cell
     """
+    
     ao = ArchiveOperator()
     archive_cells = ao.get_all_cell_meta()
     result = [cell.to_dict() for cell in archive_cells]
@@ -32,7 +34,6 @@ def get_cells():
 
 
 def get_cell_with_id(cell_id):
-
     ao = ArchiveOperator()
     archive_cells = ao.get_all_cell_meta_with_id(cell_id)
     result = [cell.to_dict() for cell in archive_cells]
@@ -85,6 +86,8 @@ def get_meta_with_id(cell_id, test_name):
         result = [cell.to_dict() for cell in archive_cells]
         return result, 200
 
+def add_cell():
+    return [], 201
 
 # EXPORTERS
 

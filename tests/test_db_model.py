@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from src.app.model import CycleMeta, CycleTimeSeries, Model
-from src.app.archive_constants import DB_URL, FORMAT
+from src.app.archive_constants import TEST_DB_URL, FORMAT
 from src.api.controllers.cell_controller import (
     export_cycle_ts_data_csv, import_cells_xls_to_db,
     export_cycle_cells_to_fmt, export_cycle_meta_data_with_id_to_fmt,
@@ -17,7 +17,7 @@ os.makedirs(tmpBasePath, exist_ok=True)
 
 @pytest.fixture(scope="session")
 def db_engine():
-    engine_ = create_engine(DB_URL, echo=True)
+    engine_ = create_engine(TEST_DB_URL, echo=True)
     Model.metadata.create_all(engine_)
 
     yield engine_

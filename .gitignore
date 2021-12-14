@@ -10,3 +10,5 @@ tests/test-data/tmp/
 .pytest_cache
 .devcontainer
 *MACCOR_example.txt_df
+datasources/postgres/data/
+postgres-data

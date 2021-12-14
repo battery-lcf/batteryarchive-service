@@ -1,2 +1,0 @@
-index,temperature,soc_max,soc_min,v_max,v_min,crate_c,crate_d,cell_id
-2,35.0,100.0,10.0,,,0.07,0.07,HC_VC
