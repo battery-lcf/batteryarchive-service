@@ -22,7 +22,7 @@ select * from
 	    when i<0 then
 	        cell_id || ' d: ' || cycle_index
 	    end series
-FROM timeseries_data
+FROM cycle_timeseries
 where 
     cell_id IN ({{cell_id}}) and 
     MOD(cycle_index,{{step}})=0 

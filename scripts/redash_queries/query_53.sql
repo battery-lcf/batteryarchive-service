@@ -12,7 +12,7 @@ SELECT
 	trunc(ah_d,3) as ah_d,  
 	trunc(e_c,3) as e_c,  
 	trunc(e_d,3) as e_d  
-FROM cycle_data
+FROM cycle_stats
 where 
     cell_id IN ({{cell_id}}) and 
     MOD(cycle_index,{{step}})=0 

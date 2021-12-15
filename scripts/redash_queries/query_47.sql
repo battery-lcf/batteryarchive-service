@@ -10,7 +10,7 @@ SELECT
    r.cycle_index,
    value
 FROM (SELECT cell_id, trunc(cycle_index,0) as cycle_index, json_build_object('e_eff', TRUNC(e_eff,3), 'ah_eff', TRUNC(ah_eff,3)) AS line 
-FROM cycle_data
+FROM cycle_stats
 where cell_id IN ({{cell_id}}) and ah_eff<1.004) as r
 JOIN LATERAL json_each_text(r.line) ON (key ~ '[e,ah]_[eff]')
 where cast(value as numeric)>0 

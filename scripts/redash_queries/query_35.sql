@@ -14,7 +14,7 @@ FROM
           trunc(cycle_index,0) AS cycle_index,
           test_time,
           json_build_object('e_d', round(e_d,3), 'ah_d', round(ah_d,3)) AS line
-   FROM cycle_data
+   FROM cycle_stats
    WHERE cell_id IN ({{cell_id}})) AS r
 JOIN LATERAL json_each_text(r.line) ON (KEY ~ '[e,ah]_[d]')
 WHERE cast(value AS numeric)!=0
