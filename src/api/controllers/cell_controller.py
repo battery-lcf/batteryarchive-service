@@ -1,10 +1,10 @@
 from src.app.model import ArchiveOperator, CellMeta
 from src.app.aio import ArchiveExporter
 from src.app.archive_cell import ArchiveCell
+from flask import request
 import pandas as pd
 from src.app.archive_constants import (LABEL, DEGREE, SLASH,
                                        CELL_LIST_FILE_NAME, TEST_TYPE, FORMAT)
-
 
 # Routes
 
@@ -26,7 +26,7 @@ def get_cells():
     Gets all cells
     :rtype: list of Cell
     """
-    
+
     ao = ArchiveOperator()
     archive_cells = ao.get_all_cell_meta()
     result = [cell.to_dict() for cell in archive_cells]
@@ -86,8 +86,15 @@ def get_meta_with_id(cell_id, test_name):
         result = [cell.to_dict() for cell in archive_cells]
         return result, 200
 
+
 def add_cell():
-    return [], 201
+    body = request.json
+    path = body.get('path')
+    print(path)
+    if import_cells_xls_to_db(path):
+        return "Upload Successful", 200
+    return "Upload Failed", 200
+
 
 # EXPORTERS
 
@@ -159,21 +166,20 @@ def export_cycle_ts_data_feather(cell_id: str, path: str):
 # Importers
 
 
-def import_cells_xls_to_db(cell_list_path):
-    ao = ArchiveOperator()
-    df = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
-    cells = []
-    for i in df.index:
-        cell = ArchiveCell(cell_id=df[LABEL.CELL_ID.value][i],
-                           test_type=str(df[LABEL.TEST.value][i]),
-                           file_id=df[LABEL.FILE_ID.value][i],
-                           file_type=str(df[LABEL.FILE_TYPE.value][i]),
-                           tester=df[LABEL.TESTER.value][i],
-                           file_path=cell_list_path +
-                           df[LABEL.FILE_ID.value][i] + SLASH,
-                           metadata=df.iloc[i])
-        cells.append(cell)
-    return ao.add_cells_to_db(cells)
+# def import_cells_xls_to_db(cell_list_path):
+#     df = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
+#     cells = []
+#     for i in df.index:
+#         cell = ArchiveCell(cell_id=df[LABEL.CELL_ID.value][i],
+#                            test_type=str(df[LABEL.TEST.value][i]),
+#                            file_id=df[LABEL.FILE_ID.value][i],
+#                            file_type=str(df[LABEL.FILE_TYPE.value][i]),
+#                            tester=df[LABEL.TESTER.value][i],
+#                            file_path=cell_list_path +
+#                            df[LABEL.FILE_ID.value][i] + SLASH,
+#                            metadata=df.iloc[i])
+#         cells.append(cell)
+#     return ArchiveOperator().add_cells_to_db(cells)
 
 
 def import_cells_xls_to_db(cell_list_path):

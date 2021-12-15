@@ -67,13 +67,18 @@ paths:
       operationId: add_cell
       requestBody:
         required: true
+        description: Path to CellList File
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Cell'
+              type: object
+              properties:
+                path:
+                  type: string
       responses:
-        '201':
-          description: Created
+        '200':
+          description: Added new cell
+
   /cells/{cell_id}/meta:
     get:
       summary: Fetches cell with cell_id
@@ -262,6 +267,11 @@ paths:
                 $ref: "#/components/schemas/Error"
 components:
   schemas:
+    Path:
+      type: object
+      properties:
+        path:
+          type: string
     Cell:
       type: object
       required:
