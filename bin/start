@@ -10,7 +10,7 @@ docker-compose run --rm server manage users create_root --password ${REDASH_ADMI
 ## Retrieve the API Key from the first user we created
 ADMIN_API_KEY=$(docker-compose run --rm postgres psql -d $REDASH_DATABASE_URL -c "SELECT api_key FROM public.users" | sed -n '3 p' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
-HOST_IP_ADDRESS=server:5000
+HOST_IP_ADDRESS=ds-postgres
 POSTGRES_DB_NAME="postgres"
 POSTGRES_DB_USER="postgres"
 

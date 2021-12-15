@@ -5,10 +5,10 @@ battery-blc-library.yaml
 .vscode
 *~$*
 .idea
-tests/test-data/tmp/
 *.db
 .pytest_cache
 .devcontainer
 *MACCOR_example.txt_df
 datasources/postgres/data/
 postgres-data
+tests/test_data/01_raw/tmp/
