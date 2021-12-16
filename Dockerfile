@@ -15,3 +15,11 @@ FROM base as prod
 COPY . /bas
 WORKDIR /bas
 CMD ["gunicorn", "-b", "0.0.0.0:4000", "wsgi:app"]
+
+
+FROM base as tools  
+RUN apt-get update && apt-get install -y pwgen
+COPY requirements-tools.txt /requirements-tools.txt
+RUN pip install -r requirements-tools.txt
+COPY . /app
+WORKDIR /app

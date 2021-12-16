@@ -8,6 +8,7 @@ def save_queries(url, api_key):
     headers = {'Authorization': 'Key {}'.format(api_key), 'Content-Type': 'application/json'}
 
     files = [f for f in os.listdir('.') if os.path.isfile(f)]
+    print(len(files), files)
     for f in files:
         if f.startswith('query_') and f.endswith('.sql'):
             start = f.index('_') + 1

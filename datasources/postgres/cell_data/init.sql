@@ -95,7 +95,7 @@ ALTER TABLE public.cell_metadata OWNER TO postgres;
 
 CREATE TABLE public.cycle_metadata (
     index numeric,
-    temp numeric,
+    temperature numeric,
     soc_max numeric,
     soc_min numeric,
     v_max numeric,
