@@ -9,7 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 import pandas as pd
-from sqlalchemy.sql.sqltypes import FLOAT
+from sqlalchemy.sql.sqltypes import FLOAT, TIMESTAMP
 from archive_constants import (LABEL, DEGREE, OUTPUT_LABELS, SLASH,
                                ARCHIVE_TABLE, CELL_LIST_FILE_NAME, TEST_DB_URL)
 from sqlalchemy import create_engine
@@ -155,7 +155,7 @@ class CycleTimeSeries(Model):
     temp_1 = Column(Float, nullable=True)
     temp_2 = Column(Float, nullable=True)
     cycle_time = Column(Float, nullable=True)
-    date_time = Column(Float, nullable=True)
+    date_time = Column(TIMESTAMP, nullable=True)
     cycle_index = Column(Integer, nullable=True)
     test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)

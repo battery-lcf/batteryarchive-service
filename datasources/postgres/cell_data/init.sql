@@ -27,148 +27,142 @@ SET default_table_access_method = heap;
 -- Name: abuse_metadata; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.abuse_metadata (
-    index numeric,
-    temp numeric,
-    thickness numeric,
-    v_init numeric,
-    indentor numeric,
-    nail_speed numeric,
-    status numeric,
-    cell_id character varying(100)
-);
+-- CREATE TABLE public.abuse_metadata (
+--     index numeric,
+--     temp numeric,
+--     thickness numeric,
+--     v_init numeric,
+--     indentor numeric,
+--     nail_speed numeric,
+--     cell_id character varying(100)
+-- );
 
 
-ALTER TABLE public.abuse_metadata OWNER TO postgres;
+-- ALTER TABLE public.abuse_metadata OWNER TO postgres;
 
 --
 -- TOC entry 205 (class 1259 OID 147481)
 -- Name: abuse_timeseries; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.abuse_timeseries (
-    index numeric,
-    axial_d numeric,
-    axial_f numeric,
-    v numeric,
-    norm_d numeric,
-    strain numeric,
-    pos_terminal_temperature numeric,
-    neg_terminal_temperature numeric,
-    left_bottom_temperature numeric,
-    right_bottom_temperature numeric,
-    above_punch_temperature numeric,
-    below_punch_temperature numeric,
-    test_time numeric,
-    status numeric,
-    cell_id character varying(100)
-);
+-- CREATE TABLE public.abuse_timeseries (
+--     index numeric,
+--     axial_d numeric,
+--     axial_f numeric,
+--     v numeric,
+--     norm_d numeric,
+--     strain numeric,
+--     temp_1 numeric,
+--     temp_2 numeric,
+--     temp_3 numeric,
+--     temp_4 numeric,
+--     temp_5 numeric,
+--     temp_6 numeric,
+--     test_time numeric,
+--     cell_id character varying(100)
+-- );
 
 
-ALTER TABLE public.abuse_timeseries OWNER TO postgres;
+-- ALTER TABLE public.abuse_timeseries OWNER TO postgres;
 
 --
 -- TOC entry 202 (class 1259 OID 49165)
 -- Name: cell_metadata; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.cell_metadata (
-    index numeric,
-    cathode character varying(50),
-    anode character varying(50),
-    source character varying(50),
-    ah numeric,
-    form_factor character varying(50),
-    status numeric,
-    cell_id character varying(100),
-    test character varying(50),
-    tester character varying(50)
-);
+-- CREATE TABLE public.cell_metadata (
+--     index numeric,
+--     cathode character varying(50),
+--     anode character varying(50),
+--     source character varying(50),
+--     ah numeric,
+--     form_factor character varying(50),
+--     cell_id character varying(100),
+--     test character varying(50),
+--     tester character varying(50)
+-- );
 
 
-ALTER TABLE public.cell_metadata OWNER TO postgres;
+-- ALTER TABLE public.cell_metadata OWNER TO postgres;
 
 --
 -- TOC entry 203 (class 1259 OID 90112)
 -- Name: cycle_metadata; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.cycle_metadata (
-    index numeric,
-    temperature numeric,
-    soc_max numeric,
-    soc_min numeric,
-    v_max numeric,
-    v_min numeric,
-    crate_c numeric,
-    crate_d numeric,
-    status numeric,
-    cell_id character varying(100)
-);
+-- CREATE TABLE public.cycle_metadata (
+--     index numeric,
+--     temperature numeric,
+--     soc_max numeric,
+--     soc_min numeric,
+--     v_max numeric,
+--     v_min numeric,
+--     crate_c numeric,
+--     crate_d numeric,
+--     cell_id character varying(100)
+-- );
 
 
-ALTER TABLE public.cycle_metadata OWNER TO postgres;
+-- ALTER TABLE public.cycle_metadata OWNER TO postgres;
 
 --
 -- TOC entry 200 (class 1259 OID 49153)
 -- Name: cycle_stats; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.cycle_stats (
-    index numeric,
-    v_max numeric,
-    v_min numeric,
-    ah_c numeric,
-    ah_d numeric,
-    e_c numeric,
-    e_d numeric,
-    i_max numeric,
-    i_min numeric,
-    v_c_mean numeric,
-    v_d_mean numeric,
-    e_eff numeric,
-    ah_eff numeric,
-    cycle_index numeric,
-    test_time numeric,
-    status numeric,
-    cell_id character varying(100)
-);
+-- CREATE TABLE public.cycle_stats (
+--     index numeric,
+--     v_max numeric,
+--     v_min numeric,
+--     ah_c numeric,
+--     ah_d numeric,
+--     e_c numeric,
+--     e_d numeric,
+--     i_max numeric,
+--     i_min numeric,
+--     v_c_mean numeric,
+--     v_d_mean numeric,
+--     e_eff numeric,
+--     ah_eff numeric,
+--     cycle_index numeric,
+--     test_time numeric,
+--     cell_id character varying(100)
+-- );
 
 
-ALTER TABLE public.cycle_stats OWNER TO postgres;
+-- ALTER TABLE public.cycle_stats OWNER TO postgres;
 
 --
 -- TOC entry 201 (class 1259 OID 49159)
 -- Name: cycle_timeseries; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.cycle_timeseries (
-    index numeric,
-    i numeric,
-    v numeric,
-    ah_c numeric,
-    ah_d numeric,
-    e_c numeric,
-    e_d numeric,
-    env_temperature numeric,
-    cell_temperature numeric,
-    cycle_time numeric,
-    date_time timestamp without time zone,
-    cycle_index numeric,
-    test_time numeric,
-    status numeric,
-    cell_id character varying(100)
-);
+-- CREATE TABLE public.cycle_timeseries (
+--     index numeric,
+--     i numeric,
+--     v numeric,
+--     ah_c numeric,
+--     ah_d numeric,
+--     e_c numeric,
+--     e_d numeric,
+--     temp_1 numeric,
+--     temp_2 numeric,
+--     cycle_time numeric,
+--     date_time timestamp without time zone,
+--     cycle_index numeric,
+--     test_time numeric,
+--     cell_id character varying(100)
+-- );
 
 
-ALTER TABLE public.cycle_timeseries OWNER TO postgres;
+-- ALTER TABLE public.cycle_timeseries OWNER TO postgres;
 
 --
 -- TOC entry 2878 (class 1259 OID 155667)
 -- Name: idx_abuse_metadata_cell_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX idx_abuse_metadata_cell_id ON public.abuse_metadata USING btree (cell_id);
+-- CREATE INDEX idx_abuse_metadata_cell_id ON public.abuse_metadata USING btree (cell_id);
 
 
 --
@@ -176,7 +170,7 @@ CREATE INDEX idx_abuse_metadata_cell_id ON public.abuse_metadata USING btree (ce
 -- Name: idx_abuse_timeseries_cell_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX idx_abuse_timeseries_cell_id ON public.abuse_timeseries USING btree (cell_id);
+-- CREATE INDEX idx_abuse_timeseries_cell_id ON public.abuse_timeseries USING btree (cell_id);
 
 
 --
@@ -184,7 +178,7 @@ CREATE INDEX idx_abuse_timeseries_cell_id ON public.abuse_timeseries USING btree
 -- Name: idx_cell_metadata_cell_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX idx_cell_metadata_cell_id ON public.cell_metadata USING btree (cell_id);
+-- CREATE INDEX idx_cell_metadata_cell_id ON public.cell_metadata USING btree (cell_id);
 
 
 --
@@ -192,7 +186,7 @@ CREATE INDEX idx_cell_metadata_cell_id ON public.cell_metadata USING btree (cell
 -- Name: idx_cycle_metadata_cell_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX idx_cycle_metadata_cell_id ON public.cycle_metadata USING btree (cell_id);
+-- CREATE INDEX idx_cycle_metadata_cell_id ON public.cycle_metadata USING btree (cell_id);
 
 
 --
@@ -200,7 +194,7 @@ CREATE INDEX idx_cycle_metadata_cell_id ON public.cycle_metadata USING btree (ce
 -- Name: idx_cycle_stats_cell_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX idx_cycle_stats_cell_id ON public.cycle_stats USING btree (cell_id);
+-- CREATE INDEX idx_cycle_stats_cell_id ON public.cycle_stats USING btree (cell_id);
 
 
 --
@@ -208,7 +202,7 @@ CREATE INDEX idx_cycle_stats_cell_id ON public.cycle_stats USING btree (cell_id)
 -- Name: idx_cycle_timeseries_cell_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
-CREATE INDEX idx_cycle_timeseries_cell_id ON public.cycle_timeseries USING btree (cell_id);
+-- CREATE INDEX idx_cycle_timeseries_cell_id ON public.cycle_timeseries USING btree (cell_id);
 
 
 -- Completed on 2021-11-07 09:28:31
