@@ -1,4 +1,4 @@
-__Battery Lifecycle (BLC) Framework__
+# __Battery Lifecycle (BLC) Framework__
 
 The Battery Lifecycle (BLC) Framework is an open-source platform that provides tools to visualize, analyze, and share battery data through the technology development cycle, including data from material characterization, cell testing, manufacturing, and field testing. The BLC framework provides users with a unified view of their data that they can use to optimize materials and cell configurations, validate cell performance under application conditions, and mitigate manufacturing variations and field failures. BLC has four components: data importers, one or more databases, a front-end for querying the data and creating visualizations, and an application programming interface to process the data. BLC supports multiple users with different access permissions. Instead of building the system from the ground up, we developed BLC around Redash, a robust open-source extract-transform-load engine. BLC has been deployed for two applications: (i) tracking the development of a single battery technology from the lab to a manufacturing line and systems installed in the field, and (ii) comparing studies of multiple cells of the same battery chemistry and configuration. The latter implementation is publicly available at www.BatteryArchive.org. 
 
@@ -11,34 +11,64 @@ To learn more about the design of the software, read our paper available online 
 For more information, contact us at info@batteryarchive.org.
 
 
-## How It Works
-### Import data from CSV or XLS into Archive
+## System Diagram
 
-### Export data from Archive into CSV
+![System Diagram](assets/images/system_diagram.png)
 
-## How To Develop
+## How To's
+
+#### Note for Windows Users
+[Windows Subsystem for Linux (WSL) ](https://docs.microsoft.com/en-us/windows/wsl/)
+
+[Docker for WSL](https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers)
+
+[BASH for Windows](https://docs.microsoft.com/en-us/learn/paths/shell/)
+
+
+### Deploy Battery Archive Service with Redash (production) 
+
+
+Open New BASH Terminal
+```bash
+./bin/setup # run once to build relevant images and configs, re-running will regenerate auth for redash database
+./bin/start # launches all services: redash, bas-db, bas-server
 ```
 
+Open New BASH Terminal
+```bash
+./bin/add_queries scripts/redash_queries  #add queries to redash UI
+./bin/add_data tests/payloads/localdata.json # add testdata into battery archive database 
 ```
 
-## How To Run Test Suite
+`Host = 0.0.0.0`
+
+| Port      | Description |
+| ----------- | ----------- |
+| 1080  | Swagger Docs       |
+| 4000  | Battery Archive Service        |
+| 26543 | PgAdmin|
+| 5000  | Redash UI
+
+
+
+
+### Run Battery Archive Service (independently)
+Single line joint command to build image and launch BAS API Server and BAS DB
+
+```
+docker build . -t bas-prod --target prod && docker run -p 4000:4000 -v $(pwd):/bas --rm  bas-prod
+```
+
+Battery Archive Service is runnning
+at `0.0.0.0:4000/`
+
+
+### Run Battery Archive Service Test Suite 
 Single line joint command to build image and run pytests
 
 ```
 docker build . -t bas-test --target test && docker run bas-test
 ```
-
-## How To Run Prod
-As config has not yet been developed, prod leverages internal sqlite database which resides in path
-
-`tests/test_data/01_raw/tmp/bas-test.db` if it does not exist, run tests first.
-
-```
-docker build . -t bas-prod --target prod && docker run -p 5000:5000 -v $(pwd):/bas --rm  bas-prod
-```
-
-navigate browser to 0.0.0.0:5000/
-
 
 
 #

@@ -12,3 +12,4 @@ battery-blc-library.yaml
 datasources/postgres/data/
 postgres-data
 tests/test_data/01_raw/tmp/
+key
