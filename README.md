@@ -51,8 +51,12 @@ Open New BASH Terminal
 
 
 
+### Testing & Development Commands  
+
+Below are commands that are helpful when developing Battery Archive
 
 ### Run Battery Archive Service (independently)
+
 Single line joint command to build image and launch BAS API Server and BAS DB
 
 ```
@@ -63,7 +67,8 @@ Battery Archive Service is runnning
 at `0.0.0.0:4000/`
 
 
-### Run Battery Archive Service Test Suite 
+#### Run Battery Archive Service Test Suite 
+
 Single line joint command to build image and run pytests
 
 ```
