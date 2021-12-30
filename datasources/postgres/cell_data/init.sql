@@ -33,6 +33,7 @@ CREATE TABLE public.abuse_metadata (
     v_init numeric,
     indentor numeric,
     nail_speed numeric,
+    status numeric,
     cell_id character varying(100)
 );
 
@@ -57,6 +58,7 @@ CREATE TABLE public.abuse_timeseries (
     above_punch_temperature numeric,
     below_punch_temperature numeric,
     test_time numeric,
+    status numeric,
     cell_id character varying(100)
 );
 
@@ -74,6 +76,7 @@ CREATE TABLE public.cell_metadata (
     source character varying(50),
     ah numeric,
     form_factor character varying(50),
+    status numeric,
     cell_id character varying(100),
     test character varying(50),
     tester character varying(50)
@@ -95,6 +98,7 @@ CREATE TABLE public.cycle_metadata (
     v_min numeric,
     crate_c numeric,
     crate_d numeric,
+    status numeric,
     cell_id character varying(100)
 );
 
@@ -121,6 +125,7 @@ CREATE TABLE public.cycle_stats (
     ah_eff numeric,
     cycle_index numeric,
     test_time numeric,
+    status numeric,
     cell_id character varying(100)
 );
 
@@ -145,6 +150,7 @@ CREATE TABLE public.cycle_timeseries (
     date_time timestamp without time zone,
     cycle_index numeric,
     test_time numeric,
+    status numeric,
     cell_id character varying(100)
 );
 
