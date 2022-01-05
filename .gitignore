@@ -1,0 +1,16 @@
+*__pycache__
+*.DS_Store
+env
+battery-blc-library.yaml
+.vscode
+*~$*
+.idea
+*.db
+.pytest_cache
+.devcontainer
+*MACCOR_example.txt_df
+datasources/postgres/data/
+postgres-data
+*/tmp/*
+key
+

@@ -81,3 +81,16 @@ services:
       - postgres
     links:
       - "ds-postgres:ds-postgres"
+  app:
+    image: bas-prod
+    ports:
+      - "4000:4000"
+    env_file: ./env
+    restart: always
+  docs:
+    image: swaggerapi/swagger-editor
+    ports:
+      - "1080:8080"
+    env_file: ./env
+    volumes:
+      - "./src/api/:/tmp/src/api/"
