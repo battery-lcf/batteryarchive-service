@@ -6,7 +6,7 @@ paths:
   /:
     get:
       summary: Root Path
-      x-openapi-router-controller: api.controllers.cell_controller
+      x-openapi-router-controller: app.controllers.cell_controller
       operationId: root
       tags:
         - general
@@ -31,7 +31,7 @@ paths:
   /cells:
     get:
       summary: Fetches all Cells
-      x-openapi-router-controller: api.controllers.cell_controller
+      x-openapi-router-controller: app.controllers.cell_controller
       operationId: get_cells
       tags:
         - cells
@@ -63,7 +63,7 @@ paths:
                 $ref: "#/components/schemas/Error"
     post:
       summary: Add a new cell
-      x-openapi-router-controller: api.controllers.cell_controller
+      x-openapi-router-controller: app.controllers.cell_controller
       operationId: add_cell
       requestBody:
         required: true
@@ -82,7 +82,7 @@ paths:
   /cells/{cell_id}/meta:
     get:
       summary: Fetches cell with cell_id
-      x-openapi-router-controller: api.controllers.cell_controller
+      x-openapi-router-controller: app.controllers.cell_controller
       operationId: get_cell_with_id
       tags:
         - cells
@@ -116,7 +116,7 @@ paths:
   /cells/all/tests/{test_name}/meta:
     get:
       summary: Fetches tests of testname
-      x-openapi-router-controller: api.controllers.cell_controller
+      x-openapi-router-controller: app.controllers.cell_controller
       operationId: get_test
       tags:
         - tests
@@ -150,7 +150,7 @@ paths:
   /cells/all/tests/{test_name}/ts:
     get:
       summary: Fetches tests of testname
-      x-openapi-router-controller: api.controllers.cell_controller
+      x-openapi-router-controller: app.controllers.cell_controller
       operationId: get_ts
       tags:
         - tests
@@ -184,7 +184,7 @@ paths:
   /cells/{cell_id}/tests/{test_name}/ts:
     get:
       summary: Fetches tests of testname
-      x-openapi-router-controller: api.controllers.cell_controller
+      x-openapi-router-controller: app.controllers.cell_controller
       operationId: get_test_ts_with_id
       tags:
         - tests
@@ -226,7 +226,7 @@ paths:
   /cells/{cell_id}/tests/{test_name}/meta:
     get:
       summary: Fetches tests of testname
-      x-openapi-router-controller: api.controllers.cell_controller
+      x-openapi-router-controller: app.controllers.cell_controller
       operationId: get_meta_with_id
       tags:
         - tests

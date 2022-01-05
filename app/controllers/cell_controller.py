@@ -1,9 +1,9 @@
-from src.app.model import ArchiveOperator, CellMeta
-from src.app.aio import ArchiveExporter
-from src.app.archive_cell import ArchiveCell
+from app.model import ArchiveOperator, CellMeta
+from app.aio import ArchiveExporter
+from app.archive_cell import ArchiveCell
 from flask import request
 import pandas as pd
-from src.app.archive_constants import (LABEL, DEGREE, SLASH,
+from app.archive_constants import (LABEL, DEGREE, SLASH,
                                        CELL_LIST_FILE_NAME, TEST_TYPE, FORMAT)
 
 # Routes
@@ -107,7 +107,7 @@ def export_cycle_cells_to_fmt(cell_list_path,
     #TODO: Refactor this to a join instead of looping slowly
     for i in df_excel.index:
         cell_id = df_excel[LABEL.CELL_ID.value][i]
-        df = ArchiveOperator().lod_cell_meta_into_df_with_cell_id(cell_id)
+        df = ArchiveOperator().get_df_cell_meta_with_id(cell_id)
         if not df.empty:
             if fmt == FORMAT.CSV.value:
                 export_cycle_meta_data_with_id_to_fmt(cell_id, output_path,

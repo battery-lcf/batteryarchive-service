@@ -1,3 +1,4 @@
+import os
 from pandas.core.frame import DataFrame
 from sqlalchemy import (
     Column,
@@ -28,7 +29,6 @@ class AbuseMeta(Model):
     indentor = Column(Float, nullable=True)
     nail_speed = Column(Float, nullable=True)
 
-
 class AbuseTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_TS.value
     index = Column(Integer, primary_key=True)
@@ -37,12 +37,12 @@ class AbuseTimeSeries(Model):
     v = Column(FLOAT, nullable=True)
     norm_d = Column(Float, nullable=True)
     strain = Column(Float, nullable=True)
-    temp_1 = Column(Float, nullable=True)
-    temp_2 = Column(Float, nullable=True)
-    temp_3 = Column(Float, nullable=True)
-    temp_4 = Column(Float, nullable=True)
-    temp_5 = Column(Float, nullable=True)
-    temp_6 = Column(Float, nullable=True)
+    pos_terminal_temperature = Column(Float, nullable=True)
+    neg_terminal_temperature = Column(Float, nullable=True)
+    left_bottom_temperature = Column(Float, nullable=True)
+    right_bottom_temperature = Column(Float, nullable=True)
+    above_punch_temperature = Column(Float, nullable=True)
+    below_punch_temperature = Column(Float, nullable=True)
     test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
 
@@ -189,9 +189,6 @@ Archive Operator
 - Performs all necessary SQL functions related to Archive db
 """
 
-import os
-
-
 
 class ArchiveOperator:
     def __init__(self, config={}):
@@ -293,7 +290,7 @@ class ArchiveOperator:
 
     def get_all_abuse_ts_with_id(self, cell_id):
         return self.get_all_data_from_table_with_id(AbuseTimeSeries, cell_id)
-        
+
     # CYCLE
 
     def get_df_cycle_meta_with_id(self, cell_id):

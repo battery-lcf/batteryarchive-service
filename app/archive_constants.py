@@ -6,15 +6,18 @@ DEGREE = 3
 CELL_LIST_FILE_NAME = "cell_list.xlsx"
 TEST_DB_URL = "sqlite:///tests/test_data/01_raw/tmp/bas-test.db"
 
+
 class TEST_TYPE(Enum):
     ABUSE = "abuse"
     CYCLE = "cycle"
+
 
 class FORMAT(Enum):
     CSV = "csv"
     FEATHER = "feather"
     XLSX = "xlsx"
     H5 = "h5"
+
 
 class TESTER(Enum):
     ORNL = "ornl"
@@ -32,6 +35,7 @@ class ARCHIVE_TABLE(Enum):
     CYCLE_STATS = "cycle_stats"
     CYCLE_TS = "cycle_timeseries"
 
+
 class INP_LABELS(Enum):
     TEST_TIME = "Running Time"
     AXIAL_D = "Axial Displacement"
@@ -44,18 +48,22 @@ class INP_LABELS(Enum):
     TC_05 = "TC 05"
     TC_06 = "TC 06"
 
+
 class ARCHIVE_COLS(Enum):
     TEST_TIME = "test_time"
     AXIAL_D = "axial_d"
     AXIAL_F = "axial_f"
     I = "i"
     V = "v"
-    temp_1 = "temp_1"
-    temp_2 = "temp_2"
-    temp_3 = "temp_3"
-    temp_4 = "temp_4"
-    temp_5 = "temp_5"
-    temp_6 = "temp_6"
+
+    temp_1 = "pos_terminal_temperature"
+    temp_2 = "neg_terminal_temperature"
+
+    temp_3 = "left_bottom_temperature"
+    temp_4 = "right_bottom_temperature"
+    temp_5 = "above_punch_temperature"
+    temp_6 = "below_punch_temperature"
+
 
 class OUTPUT_LABELS(Enum):
     CYCLE_INDEX = "Cycle_Index"
