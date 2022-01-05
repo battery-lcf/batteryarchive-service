@@ -1,10 +1,5 @@
 import os, sys
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.append(parentdir)
-sys.path.append("..")
 currentdir = os.getcwd()
-parentdir = os.path.dirname(currentdir)
 sys.path.append(os.path.join(currentdir, 'app'))
 from os.path import exists
 import pytest
@@ -12,10 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from app.model import CycleMeta, CycleTimeSeries, Model
 from app.archive_constants import TEST_DB_URL, FORMAT
-from api.controllers.cell_controller import (
-    export_cycle_ts_data_csv, import_cells_xls_to_db,
-    export_cycle_cells_to_fmt, export_cycle_meta_data_with_id_to_fmt,
-    update_cycle_cells)
+from app.controllers import cell_controller as cc 
 from datetime import date
 
 testDataBasePath = os.path.join(currentdir, 'tests', 'test_data')
@@ -65,7 +57,7 @@ def test_generate_cycle_data(db_session):
                               crate_d=1.0)
     db_session.add(new_CycleData)
     db_session.commit()
-    export_cycle_meta_data_with_id_to_fmt(cell_id, tmpBasePath,
+    cc.export_cycle_meta_data_with_id_to_fmt(cell_id, tmpBasePath,
                                           FORMAT.CSV.value)
     assert exists(output_file)
     db_session.delete(new_CycleData)
@@ -95,7 +87,7 @@ def test_generate_timeseries_data(db_session):
     )
     db_session.add(new_Timeseries)
     db_session.commit()
-    export_cycle_ts_data_csv(cell_id, tmpBasePath)
+    cc.export_cycle_ts_data_csv(cell_id, tmpBasePath)
     assert exists(output_file)
     db_session.delete(new_Timeseries)
     db_session.commit()
@@ -108,7 +100,7 @@ def test_add_abuse_cells_to_database(db_session):
         rawTestDataPath, "abuse", '')
 
     Model.metadata.drop_all(db_session.bind)
-    assert import_cells_xls_to_db(cell_lists_path)
+    assert cc.import_cells_xls_to_db(cell_lists_path)
 
 
 def test_add_cycle_cells_to_database(db_session):
@@ -117,7 +109,7 @@ def test_add_cycle_cells_to_database(db_session):
     temp_file_path = os.path.join(
         rawTestDataPath, "cycle", 'MACCOR_example', 'MACCOR_example.txt_df')
     Model.metadata.drop_all(db_session.bind)
-    assert import_cells_xls_to_db(cell_lists_path)
+    assert cc.import_cells_xls_to_db(cell_lists_path)
     os.remove(temp_file_path)
 
 
@@ -126,14 +118,14 @@ def test_add_cycle_cells_to_database_full(db_session):
     cell_lists_path = os.path.join(
         rawTestDataPath, "feather", 'in', 'cycle', '')
     Model.metadata.drop_all(db_session.bind)
-    assert import_cells_xls_to_db(cell_lists_path)
+    assert cc.import_cells_xls_to_db(cell_lists_path)
 
 
 def test_export_cells_to_feather():
     cell_id = "HC_VC"
     out = os.path.join(
         rawTestDataPath, "tmp",'')
-    export_cycle_meta_data_with_id_to_fmt(cell_id, out, FORMAT.FEATHER.value)
+    cc.export_cycle_meta_data_with_id_to_fmt(cell_id, out, FORMAT.FEATHER.value)
     assert True
 
 
@@ -143,8 +135,8 @@ def test_export_db_to_csv(db_session):
     temp_file_path = os.path.join(
         rawTestDataPath, "cycle",'MACCOR_example', 'MACCOR_example.txt_df')
     Model.metadata.drop_all(db_session.bind)
-    import_cells_xls_to_db(cell_lists_path)
-    export_cycle_cells_to_fmt(cell_lists_path, tmpBasePath)
+    cc.import_cells_xls_to_db(cell_lists_path)
+    cc.export_cycle_cells_to_fmt(cell_lists_path, tmpBasePath)
     assert exists(temp_file_path)
     os.remove(temp_file_path)
     assert ~exists(temp_file_path)
@@ -169,9 +161,9 @@ def test_export_db_to_feather(db_session):
     temp_file_path = os.path.join(
         rawTestDataPath, "cycle",'MACCOR_example', 'MACCOR_example.txt_df')
     Model.metadata.drop_all(db_session.bind)
-    import_cells_xls_to_db(cell_lists_path)
+    cc.import_cells_xls_to_db(cell_lists_path)
     cell_id = "HC_VC"
-    export_cycle_meta_data_with_id_to_fmt(cell_id, tmpBasePath,
+    cc.export_cycle_meta_data_with_id_to_fmt(cell_id, tmpBasePath,
                                           FORMAT.FEATHER.value)
     assert exists(temp_file_path)
     os.remove(temp_file_path)
@@ -181,5 +173,5 @@ def test_export_db_to_feather(db_session):
 def test_update_cycle_cells():
     cell_lists_path = os.path.join(
         rawTestDataPath, "cycle",'')
-    import_cells_xls_to_db(cell_lists_path)
-    assert update_cycle_cells(cell_lists_path)
+    cc.import_cells_xls_to_db(cell_lists_path)
+    assert cc.update_cycle_cells(cell_lists_path)

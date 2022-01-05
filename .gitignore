@@ -11,5 +11,6 @@ battery-blc-library.yaml
 *MACCOR_example.txt_df
 datasources/postgres/data/
 postgres-data
-tests/test_data/01_raw/tmp/
+*/tmp/*
 key
+

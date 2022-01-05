@@ -1,10 +1,6 @@
 import pandas as pd
-
-import os
-import sys
-sys.path.append("..")
+import os, sys
 currentdir = os.getcwd()
-parentdir = os.path.dirname(currentdir)
 sys.path.append(os.path.join(currentdir, 'app'))
 from app.aio import CellTestReader, listToString, signedCurrent
 from app.converter import (calc_cycle_quantities, calc_cycle_stats,
