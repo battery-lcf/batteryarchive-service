@@ -249,12 +249,12 @@ class CellTestReader:
             df_ts_a['axial_d'] = df_ts_file['Axial Displacement']
             df_ts_a['v'] = df_ts_file['Analog 1']
             df_ts_a['axial_f'] = df_ts_file['Axial Force']
-            df_ts_a['temp_1'] = 0
-            df_ts_a['temp_2'] = 0
-            df_ts_a['temp_3'] = 0
-            df_ts_a['temp_4'] = 0
-            df_ts_a['temp_5'] = 0
-            df_ts_a['temp_6'] = 0
+            df_ts_a[ARCHIVE_COLS.temp_1.value] = 0
+            df_ts_a[ARCHIVE_COLS.temp_2.value] = 0
+            df_ts_a[ARCHIVE_COLS.temp_3.value] = 0
+            df_ts_a[ARCHIVE_COLS.temp_4.value] = 0
+            df_ts_a[ARCHIVE_COLS.temp_5.value] = 0
+            df_ts_a[ARCHIVE_COLS.temp_6.value] = 0
             #df_time_series_a['cell_id'] = cell_id
 
             df_ts_b = pd.DataFrame()

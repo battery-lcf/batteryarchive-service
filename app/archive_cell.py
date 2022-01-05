@@ -1,4 +1,3 @@
-from os import statvfs
 from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
                                SLASH, ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
 from converter import (split_cycle_metadata, split_abuse_metadata,

@@ -9,9 +9,9 @@ import os, sys
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
-
-rawTestDataPath = currentdir + "/test_data/01_raw/"
-tmpBasePath = rawTestDataPath + "tmp/"
+testDataBasePath = os.path.join(currentdir, 'test_data')
+rawTestDataPath = os.path.join(testDataBasePath,'01_raw')
+tmpBasePath = os.path.join(rawTestDataPath,'tmp')
 
 
 def df_print(output, result):
@@ -149,10 +149,10 @@ def test_calc_cycle_stats():
 
 
 def test_prepare_maccor_file():
-    maccor_file = "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt"
-    result_path = (
-        "/bas/data/01_raw/default_user/data_set_samples/cycle/MACCOR_example/MACCOR_example.txt_df"
-    )
+    maccor_file = os.path.join(
+    rawTestDataPath, "cycle", "MACCOR_example", "MACCOR_example.txt")   
+    result_path = os.path.join(
+        rawTestDataPath, "cycle", "MACCOR_example", "MACCOR_example.txt_df")
     cellpath_df = prepare_maccor_file(maccor_file)
     assert cellpath_df == result_path
     assert os.path.exists(cellpath_df)
@@ -167,7 +167,7 @@ def test_signedCurrent():
 
 def test_read_ornlabuse():
     cell_id = "S1Abuse"
-    file_path = rawTestDataPath + "abuse-ornl/"
+    file_path = os.path.join(rawTestDataPath,  "abuse-ornl", '')
     output_df = read_ornlabuse(cell_id, file_path)
     result_df_cols = [
         "test_time",
@@ -183,7 +183,7 @@ def test_read_ornlabuse():
         "cell_id",
     ]
     result_df = [
-        {
+        { 
             "test_time": 0.000,
             "axial_d": 0,
             "v": 4.128,
@@ -244,7 +244,7 @@ def test_read_ornlabuse():
 
 def test_read_snlabuse():
     cell_id = "S2Abuse"
-    file_path = rawTestDataPath + "abuse-snl/"
+    file_path = os.path.join(rawTestDataPath,  "abuse-snl", '')
     output_df = read_snlabuse(cell_id, file_path)
     result_df_cols = [
         "test_time",
@@ -294,7 +294,7 @@ def test_read_snlabuse():
 
 def test_read_maccor():
     cell_id = "maccor"
-    maccor_file = rawTestDataPath + "cycle/MACCOR_example/"
+    maccor_file = os.path.join(rawTestDataPath,  "cycle", "MACCOR_example", '')
     df_output = read_maccor(cell_id, maccor_file)
     assert len(df_output) == 499
     os.remove(maccor_file + "MACCOR_example.txt_df")
@@ -302,7 +302,7 @@ def test_read_maccor():
 
 def test_read_arbin():
     cell_id = "arbin"
-    arbin_file = rawTestDataPath + "cycle-arbin/"
+    arbin_file = os.path.join(rawTestDataPath,  "cycle-arbin", '')
     df_output = read_arbin(cell_id, arbin_file)
     assert len(df_output) == 119
 

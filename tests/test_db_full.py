@@ -3,6 +3,11 @@ from os.path import exists
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+import sys
+sys.path.append("..")
+currentdir = os.getcwd()
+parentdir = os.path.dirname(currentdir)
+sys.path.append(os.path.join(currentdir, 'app'))
 from app.model import CycleMeta, CycleTimeSeries, Model
 from app.archive_constants import TEST_DB_URL, FORMAT
 from api.controllers.cell_controller import (

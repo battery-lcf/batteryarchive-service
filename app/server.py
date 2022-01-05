@@ -1,7 +1,7 @@
 import connexion
 import os 
 from sqlalchemy import create_engine
-from src.app.model import Model
+from app.model import Model
 
 app = connexion.FlaskApp(__name__)
 app.add_api('../api/api.yaml') 
