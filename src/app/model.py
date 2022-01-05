@@ -74,6 +74,7 @@ class CellMeta(Model):
     ah = Column(BigInteger, nullable=True)
     form_factor = Column(TEXT, nullable=True)
     test = Column(TEXT, nullable=True)
+    mapping = Column(TEXT, nullable=True)
     tester = Column(TEXT, nullable=True)
 
     def to_dict(self):
@@ -86,6 +87,7 @@ class CellMeta(Model):
             "ah": self.ah,
             "form_factor": self.form_factor,
             "test": self.test,
+            "mapping": self.mapping,
             "tester": self.tester
         }
 

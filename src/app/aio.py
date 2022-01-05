@@ -5,6 +5,7 @@ import os
 from archive_constants import (TEST_TYPE, TESTER, INP_LABELS, ARCHIVE_COLS, FORMAT)
 from converter import (sort_timeseries)
 import pyarrow.feather as feather
+import datetime
 
 
 class CellTestReader:
@@ -26,6 +27,8 @@ class CellTestReader:
             data = self.read_arbin(file_path)
         if self.tester == TESTER.MACCOR.value:
             data = self.read_maccor(file_path)
+        if self.tester == TESTER.GENERIC.value:
+            data = self.read_generic(file_path)
         if self.tester == TESTER.ORNL.value:
             data = self.read_ornlabuse(file_path)
         if self.tester == TESTER.SNL.value:
@@ -36,6 +39,88 @@ class CellTestReader:
         if self.test_type == TEST_TYPE.ABUSE.value:
             return data
 
+    # import data from a generic tester
+    @staticmethod
+    def read_generic(file_path, file_type='cvs', mapping='test_time, date_time, voltage, current'):
+
+        logging.info('adding files')
+
+        listOfFiles = glob.glob(file_path + '*.' + file_type)
+
+        for i in range(len(listOfFiles)):
+            listOfFiles[i] = listOfFiles[i].replace(file_path[:-1], '')
+
+        logging.info('list of files to add: ' + str(listOfFiles))
+
+        df_file = pd.DataFrame(listOfFiles, columns=['filename'])
+
+        df_file.sort_values(by=['filename'], inplace=True)
+
+        if df_file.empty:
+            return
+
+        #df_file['cell_id'] = cell_id
+
+        df_tmerge = pd.DataFrame()
+
+        # Loop through all the Excel test files
+        for ind in df_file.index:
+
+            filename = df_file['filename'][ind]
+            cellpath = file_path + filename
+
+            logging.info('processing file: ' + filename)
+
+            if os.path.exists(cellpath):
+
+                if file_type == 'csv':
+                    df_time_series_file = pd.read_csv(cellpath, sep=',')
+                elif file_type == 'h5':
+                    # need to make a bit more generic. Use raw_data for now
+                    df_time_series_file = pd.read_hdf(cellpath,"raw_data")
+
+                # Find the time series sheet in the excel file
+                df_ts = pd.DataFrame()
+                column_list = mapping.split(",")
+
+                file_col = 0
+                for col in column_list:
+
+                    if col == 'date_time':
+                        file_col_name = df_time_series_file.columns[file_col]
+                        df_ts['date_time'] = pd.to_datetime(df_time_series_file[file_col_name], format='%Y-%m-%d %H:%M:%S.%f');
+                    elif col != "skip":
+                        file_col_name = df_time_series_file.columns[file_col]
+                        df_ts[col] = df_time_series_file[file_col_name].apply(pd.to_numeric)
+
+                    file_col += 1
+
+                # need at the least one of date_time or test_time
+                # TODO: how do we fail the import?
+
+                if "date_time" not in df_ts.columns and "test_time" in df_ts.columns:
+                    df_ts['date_time'] = pd.Timestamp(datetime.datetime.now()) + pd.to_timedelta(df_ts['test_time'], unit='s')
+
+                if "date_time" in df_ts.columns and "test_time" not in df_ts.columns:
+                    df_ts['test_time'] = df_ts['date_time'] - df_ts['date_time'].iloc[0]
+                    df_ts['test_time'] = df_ts['test_time'].dt.total_seconds()
+
+                df_ts['ah_c'] = 0
+                df_ts['e_c'] = 0
+                df_ts['ah_d'] = 0
+                df_ts['e_d'] = 0
+                #df_ts['cell_id'] = cell_id
+                df_ts['cycle_time'] = 0
+
+                if df_tmerge.empty:
+                    df_tmerge = df_ts[df_ts['test_time'] > 0]
+                else:
+                    df_tmerge = df_tmerge.append(df_ts[df_ts['test_time'] > 0], ignore_index=True)
+
+        return df_tmerge
+
+    
+    
     # import data from Arbin-generated Excel files
     @staticmethod
     def read_arbin(file_path, file_type='xlsx'):
