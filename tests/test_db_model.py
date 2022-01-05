@@ -1,16 +1,20 @@
-import os
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+
 from os.path import exists
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from src.app.model import CycleMeta, CycleTimeSeries, Model
-from src.app.archive_constants import TEST_DB_URL, FORMAT
-from src.api.controllers.cell_controller import (
+from app.model import CycleMeta, CycleTimeSeries, Model
+from app.archive_constants import TEST_DB_URL, FORMAT
+from api.controllers.cell_controller import (
     export_cycle_ts_data_csv, import_cells_xls_to_db,
     export_cycle_cells_to_fmt, export_cycle_meta_data_with_id_to_fmt,
     update_cycle_cells)
-
-rawTestDataPath = "/bas/tests/test_data/01_raw/"
+from datetime import date
+rawTestDataPath = currentdir +  "/test_data/01_raw/"
 tmpBasePath = rawTestDataPath + "tmp/"
 os.makedirs(tmpBasePath, exist_ok=True)
 
@@ -79,7 +83,7 @@ def test_generate_timeseries_data(db_session):
         e_d=1.0,
         temp_1=1.0,
         temp_2=1.0,
-        date_time=1.0,
+        date_time=date.today(),
         test_time=1.0,
     )
     db_session.add(new_Timeseries)

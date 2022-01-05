@@ -3,9 +3,9 @@ from os.path import exists
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from src.app.model import CycleMeta, CycleTimeSeries, Model
-from src.app.archive_constants import TEST_DB_URL, FORMAT
-from src.api.controllers.cell_controller import (
+from app.model import CycleMeta, CycleTimeSeries, Model
+from app.archive_constants import TEST_DB_URL, FORMAT
+from api.controllers.cell_controller import (
     export_cycle_ts_data_csv, import_cells_xls_to_db,
     export_cycle_cells_to_fmt, export_cycle_meta_data_with_id_to_fmt,
     update_cycle_cells)

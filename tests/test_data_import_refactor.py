@@ -1,12 +1,15 @@
-from src.app.archive_constants import TEST_TYPE, TESTER
-from src.app.converter import (calc_cycle_quantities, calc_cycle_stats,
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+from app.archive_constants import TEST_TYPE, TESTER
+from app.converter import (calc_cycle_quantities, calc_cycle_stats,
                        calc_abuse_stats, sort_timeseries, split_abuse_metadata)
-from src.app.aio import CellTestReader, listToString, signedCurrent
+from app.aio import CellTestReader, listToString, signedCurrent
 import pandas as pd
-import os
 
-testDataBasePath = "/bas/tests/test-data/"
-rawTestDataPath = "/bas/tests/test_data/01_raw/"
+testDataBasePath = currentdir + "/test_data/"
+rawTestDataPath = currentdir + "/test_data/01_raw/"
 tmpBasePath = testDataBasePath + "tmp/"
 
 def df_print(output, result):
