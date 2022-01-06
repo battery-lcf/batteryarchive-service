@@ -16,6 +16,7 @@ class FORMAT(Enum):
     CSV = "csv"
     FEATHER = "feather"
     XLSX = "xlsx"
+    H5 = "h5"
 
 
 class TESTER(Enum):
@@ -23,6 +24,7 @@ class TESTER(Enum):
     SNL = "snl"
     ARBIN = "arbin"
     MACCOR = "maccor"
+    GENERIC = "generic"
 
 
 class ARCHIVE_TABLE(Enum):
@@ -84,6 +86,7 @@ class OUTPUT_LABELS(Enum):
 
 class LABEL(Enum):
     CELL_ID = "cell_id"
+    MAPPING = "mapping"
     ANODE = "anode"
     CATHODE = "cathode"
     SOURCE = "source"

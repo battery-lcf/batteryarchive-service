@@ -4,7 +4,7 @@ currentdir = os.getcwd()
 sys.path.append(os.path.join(currentdir, 'app'))
 from app.aio import CellTestReader, listToString, signedCurrent
 from app.converter import (calc_cycle_quantities, calc_cycle_stats,
-                           calc_abuse_stats, sort_timeseries, split_abuse_metadata)
+                           calc_abuse_stats, sort_timeseries, split_abuse_metadata, split_cycle_metadata)
 from app.archive_constants import TEST_TYPE, TESTER
 testDataBasePath = os.path.join(currentdir, 'tests', 'test_data')
 rawTestDataPath = os.path.join(testDataBasePath, "01_raw")
@@ -310,6 +310,19 @@ def test_read_arbin():
     assert len(df_output) == 119
 
 
+def test_read_generic_csv():
+    csv_file = rawTestDataPath + "cycle-generic/csv/"
+    df_output = CellTestReader(TESTER.GENERIC, TEST_TYPE.CYCLE).read_generic(csv_file, 'csv', 'date_time, test_time, cycle_index, i, v')
+    assert len(df_output) == 460380
+
+
+def test_read_generic_h5():
+    # requires tables
+    h5_file = rawTestDataPath + "cycle-generic/h5/"
+    df_output = CellTestReader(TESTER.GENERIC, TEST_TYPE.CYCLE).read_generic(h5_file, 'h5', 'cycle_index,skip,test_time,i,cell_temperature,skip,v')
+    assert len(df_output) == 568027
+
+
 def test_sort_timeseries():
     cell_id = "sort-timeseries"
     input_df_cols = [
@@ -376,6 +389,7 @@ def test_populate_abuse_metadata():
         "ah",
         "form_factor",
         "test",
+        "mapping",
         "tester",
         "temperature",
         "thickness",
@@ -391,6 +405,7 @@ def test_populate_abuse_metadata():
         "ah": "name",
         "form_factor": "form",
         "test": "abuse",
+        "mapping": "date_time, test_time, cycle_index, i, v",
         "tester": "person",
         "temperature": 123,
         "thickness": 1,
@@ -400,7 +415,7 @@ def test_populate_abuse_metadata():
     }]
     input_pd_df = pd.DataFrame(data=input_df, columns=input_df_cols)
     output_df_cell_md, output_df_test_md = split_abuse_metadata(input_pd_df)
-    assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 8
+    assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 9
     assert len(output_df_test_md) == 1 and len(output_df_test_md.columns) == 6
 
 
@@ -414,12 +429,13 @@ def test_populate_cycle_metadata():
         "ah",
         "form_factor",
         "test",
+        "mapping",
         "tester",
         "temperature",
-        "thickness",
-        "v_init",
-        "indentor",
-        "nail_speed",
+        "soc_max",
+        "soc_min",
+        "crate_c",
+        "crate_d",
     ]
     input_df = [{
         "cell_id": cell_id,
@@ -429,6 +445,7 @@ def test_populate_cycle_metadata():
         "ah": "name",
         "form_factor": "form",
         "test": "abuse",
+        "mapping": "date_time, test_time, cycle_index, i, v",
         "tester": "person",
         "temperature": 123,
         "soc_max": 1,
@@ -437,6 +454,7 @@ def test_populate_cycle_metadata():
         "crate_d": 0,
     }]
     input_pd_df = pd.DataFrame(data=input_df, columns=input_df_cols)
-    output_df_cell_md, output_df_test_md = split_abuse_metadata(input_pd_df)
-    assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 8
+    output_df_cell_md, output_df_test_md = split_cycle_metadata(input_pd_df)
+    assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 9
     assert len(output_df_test_md) == 1 and len(output_df_test_md.columns) == 6
+

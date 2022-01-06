@@ -18,6 +18,7 @@ def extract_cell_metdata(df_c_md):
     df_cell_md[LABEL.AH.value] = [df_c_md[LABEL.AH.value]]
     df_cell_md[LABEL.FORM_FACTOR.value] = [df_c_md[LABEL.FORM_FACTOR.value]]
     df_cell_md[LABEL.TEST.value] = [df_c_md[LABEL.TEST.value]]
+    df_cell_md[LABEL.MAPPING.value] = [df_c_md[LABEL.MAPPING.value]]
     df_cell_md[LABEL.TESTER.value] = [df_c_md[LABEL.TESTER.value]]
 
     return df_cell_md
