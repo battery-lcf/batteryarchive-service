@@ -13,28 +13,26 @@ function App() {
   const [alert, setAlert] = useState(true);
 
   useEffect(() => {
-    function getCell() {
-      fetch('http://34.102.57.101:3001/')
-        .then(response => {
-          return response.text();
-        })
-        .then(local_data => {
-          let l_data = JSON.parse(local_data);
-          console.log(cell_data)
-          setCells(l_data);
-          // console.log(cell_data)
-        });
-    }
-    getCell()
-    const interval=setInterval(()=>{
+    if(alert === true) {
       getCell()
-     },5000)
-       
-       
-    // return()=>clearInterval(interval)
-    
-  }, []);  
+      setAlert(false)
+    }
 
+    
+  }, [alert]);  
+
+  function getCell() {
+    fetch('http://34.102.57.101:3001/')
+      .then(response => {
+        return response.text();
+      })
+      .then(local_data => {
+        let l_data = JSON.parse(local_data);
+        console.log(cell_data)
+        setCells(l_data);
+        // console.log(cell_data)
+      });
+  }
 
 
   function createCell() {
@@ -57,6 +55,7 @@ function App() {
       .catch(function (error) {
         console.warn(error);
       }).finally(function () {
+        console.log("created")
         setAlert(true)
       });
 
@@ -77,12 +76,10 @@ function App() {
       .then(response => {
         return response.text();
       })
-      .then(data => {
-        alert(data);
-      })
       .catch(function (error) {
         console.warn(error);
       }).finally(function () {
+        console.log("edited")
         setAlert(true)
       });
   }
@@ -91,16 +88,14 @@ function App() {
 
     fetch(`http://34.102.57.101:3001/cell/${id}`, {
       method: 'DELETE',
-    })
-      .then(response => {
+    }).then(response => {
+        console.log("created")
         return response.text();
-      })
-      .then(data => {
-        alert(data);
       })
       .catch(function (error) {
         console.warn(error);
       }).finally(function () {
+        console.log("deleted")
         setAlert(true)
       });
       
