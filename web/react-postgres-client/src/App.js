@@ -10,23 +10,33 @@ import "./style.css"
 
 function App() {
   const [cell_data, setCells] = useState([]);
+  const [alert, setAlert] = useState(true);
+
   useEffect(() => {
-   getCell()
-  }, []);
-  function handleErrors(response) {
-    if (!response.ok) throw Error(response.statusText);
-    return response;
-  }
-  function getCell() {
-    fetch('http://34.102.57.101:3001/')
-      .then(response => {
-        return response.text();
-      })
-      .then(local_data => {
-  let l_data = JSON.parse(local_data);
-        setCells(l_data);
-      });
-  }
+    function getCell() {
+      fetch('http://34.102.57.101:3001/')
+        .then(response => {
+          return response.text();
+        })
+        .then(local_data => {
+          let l_data = JSON.parse(local_data);
+          console.log(cell_data)
+          setCells(l_data);
+          // console.log(cell_data)
+        });
+    }
+    getCell()
+    const interval=setInterval(()=>{
+      getCell()
+     },5000)
+       
+       
+    // return()=>clearInterval(interval)
+    
+  }, []);  
+
+
+
   function createCell() {
     let cell_id = prompt('Enter  cell_id');
     let anode = prompt('Enter anode');
@@ -42,13 +52,14 @@ function App() {
       body: JSON.stringify({cell_id, anode, cathode, source, form_factor, ah }),
     })
       .then(response => {
-
         return response.text();
       })
-      .then(data => {
-        alert(data);
-        getCell();
+      .catch(function (error) {
+        console.warn(error);
+      }).finally(function () {
+        setAlert(true)
       });
+
   }
   function editCell(cell_id) {
     let anode = prompt('Enter anode');
@@ -68,7 +79,11 @@ function App() {
       })
       .then(data => {
         alert(data);
-        getCell();
+      })
+      .catch(function (error) {
+        console.warn(error);
+      }).finally(function () {
+        setAlert(true)
       });
   }
   function deleteCell() {
@@ -82,8 +97,13 @@ function App() {
       })
       .then(data => {
         alert(data);
-        getCell();
+      })
+      .catch(function (error) {
+        console.warn(error);
+      }).finally(function () {
+        setAlert(true)
       });
+      
   }
   const columns = [
   {
