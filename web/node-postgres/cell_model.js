@@ -23,6 +23,7 @@ const createCell = (body) => {
       if (error) {
         reject(error)
       }
+      resolve(results)
       console.log('New cell added with cell_id :' + cell_id)
     })
   })
@@ -34,6 +35,7 @@ const deleteCell = (cell_id) => {
       if (error) {
         reject(error)
       }
+      resolve(results)
       console.log('Cell deleted with cell_id: ' + cell_id)
     })
   })
@@ -50,6 +52,7 @@ const updateCell = (cell_id, body) => {
       if (error) {
         reject(error)
       }
+      resolve(results)
 	console.log('Cell edited with cell_id: ' + cell_id) 
     }
   )
