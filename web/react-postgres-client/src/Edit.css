@@ -1,0 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Dongle:wght@300&display=swap");
+
+div.edit {
+    font-family: 'Dongle', sans-serif;
+    font-size: 40px ;
+    padding-bottom: 20px;
+    width: 100%;
+    height: 80px;
+
+
+}
+
+
+input.edit-form {
+    font-family: 'Dongle', sans-serif;
+    overflow: hidden;
+    margin-bottom: 0;
+    padding: 15px 15px;
+    border-bottom: none;
+    position: relative;
+    background: #edf2f5;
+    border-bottom: 1px solid #e6edf1;
+    font-size: 40px ;
+}
+input.edit-form:last-of-type {
+    border-bottom: 1px solid #000000;;
+  }
+
+button.submit-edit {
+    font-family: 'Dongle', sans-serif;
+    font-size: 25px ;
+    margin-top: 20px;
+    width: 100px;
+    height: 40px;
+    border-radius: 4px;
+    background-color: #008CBA ; 
+    border: none ;
+    color: white;
+    padding-right: 6px ;
+    text-align: center;
+}
+

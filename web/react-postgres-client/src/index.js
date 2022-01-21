@@ -1,9 +1,17 @@
 import React from 'react';
 import { ThemeProvider } from '@material-ui/core/styles';
 import ReactDOM from 'react-dom';
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 import App from './App';
+import Edit from './Edit'
 import theme from "./theme";
 
 
 ReactDOM.render(
-<ThemeProvider theme={theme}><App /></ThemeProvider>, document.getElementById('root'));
+    <BrowserRouter>
+    <Switch>
+     <Route exact path="/" component={App} />
+     <Route path="/edit" component={Edit} />
+   </Switch>
+   </BrowserRouter>,
+ document.getElementById('root'));

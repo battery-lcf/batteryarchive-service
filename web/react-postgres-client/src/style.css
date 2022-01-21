@@ -29,7 +29,7 @@
 }
 
 .MuiTable-root  tbody tr {
-    border-bottom: 1px solid #dddddd !important;
+    border-bottom: 2px solid #dddddd !important;
 }
 
 .MuiTable-root tbody tr:nth-of-type(even) {
@@ -40,4 +40,15 @@
     border-bottom: 2px solid #6C7AE0  !important;
 }
 
+
+button.CRUD {
+
+    border-radius: 8px !important;
+    background-color: #6C7AE0 !important; /* Green */
+    border: none !important;
+    color: white !important;
+    padding-right: 6px !important;
+    text-align: center !important;
+    margin: 2px;
+}
 

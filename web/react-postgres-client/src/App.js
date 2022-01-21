@@ -1,11 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import { useTable, useFilters, useGlobalFilter } from "react-table";
+import { Redirect } from "react-router-dom";
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+
 import "./style.css"
+
 
 
 function App() {
@@ -21,6 +24,8 @@ function App() {
     
   }, [alert]);  
 
+
+  
   function getCell() {
     fetch('http://34.102.57.101:3001/')
       .then(response => {
@@ -61,27 +66,29 @@ function App() {
 
   }
   function editCell(cell_id) {
-    let anode = prompt('Enter anode');
-    let cathode = prompt('Enter cathode');
-    let source  = prompt('Enter source');
-    let form_factor = prompt('Enter form fatcor')
-    let ah = prompt('Enter amp hours')
-    fetch('http://34.102.57.101:3001/cell/'+cell_id, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ anode, cathode, source, form_factor, ah }),
-    })
-      .then(response => {
-        return response.text();
-      })
-      .catch(function (error) {
-        console.warn(error);
-      }).finally(function () {
-        console.log("edited")
-        setAlert(true)
-      });
+
+    return <Redirect to='/Edit'  />
+    // let anode = prompt('Enter anode');
+    // let cathode = prompt('Enter cathode');
+    // let source  = prompt('Enter source');
+    // let form_factor = prompt('Enter form fatcor')
+    // let ah = prompt('Enter amp hours')
+    // fetch('http://34.102.57.101:3001/cell/'+cell_id, {
+    //   method: 'PUT',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ anode, cathode, source, form_factor, ah }),
+    // })
+    //   .then(response => {
+    //     return response.text();
+    //   })
+    //   .catch(function (error) {
+    //     console.warn(error);
+    //   }).finally(function () {
+    //     console.log("edited")
+    //     setAlert(true)
+    //   });
   }
   function deleteCell() {
     let id = prompt('Confirm that you want to delete this cell_id by retyping');
@@ -100,6 +107,7 @@ function App() {
       });
       
   }
+
   const columns = [
   {
     Header: "Cell Metadata Table",
@@ -131,10 +139,10 @@ function App() {
        {
         Header: "Edit/Delete",
         Cell: ({ cell }) => ( <>
-        <button onClick={() => editCell(cell.row.values.cell_id)}>
+        <button className='CRUD' onClick={() => window.location.href='/edit' }>
           {"Edit"}
         </button>
-        <button onClick={() => deleteCell()}>
+        <button className='CRUD' onClick={() => deleteCell()}>
           {"Delete"}
         </button>
         </>
@@ -285,7 +293,7 @@ const Table = ({ columns, data }) => {
      <Table columns={columns} data={cell_data} />
     </div>
     <div>
-  <button onClick={() => createCell()}>
+  <button className='CRUD' onClick={() => createCell()}>
           {"Create"}
         </button>
     </div>
