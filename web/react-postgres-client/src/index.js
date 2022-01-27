@@ -1,10 +1,10 @@
 import React from 'react';
-import { ThemeProvider } from '@material-ui/core/styles';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from './App';
 import Edit from './Edit'
-import theme from "./theme";
+import Create from './Create'
+
 
 
 ReactDOM.render(
@@ -12,6 +12,7 @@ ReactDOM.render(
     <Routes>
      <Route exact path="/" element={<App/>}></Route>
      <Route path="/edit" element={<Edit/>}></Route>
+     <Route path="/create" element={<Create/>}></Route>
    </Routes>
    </BrowserRouter>,
  document.getElementById('root'));

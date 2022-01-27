@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { useTable, useFilters, useGlobalFilter } from "react-table";
-import {Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -33,10 +33,10 @@ function App() {
   const toEdit=(arg)=>{
     navigate('/edit',{state:{cell_i: arg }});
   }
-
-  function RenderAgain() {
-    setAlert(true)
+  const toCreate=()=>{
+    navigate('/create');
   }
+
   
   function getCell() {
     fetch('http://34.102.57.101:3001/')
@@ -52,31 +52,31 @@ function App() {
   }
 
 
-  function createCell() {
-    let cell_id = prompt('Enter  cell_id');
-    let anode = prompt('Enter anode');
-    let cathode = prompt('Enter cathode');
-    let source  = prompt('Enter source');
-    let form_factor = prompt('Enter form fatcor')
-    let ah = prompt('Enter amp hours')
-    fetch('http://34.102.57.101:3001/cell', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({cell_id, anode, cathode, source, form_factor, ah }),
-    })
-      .then(response => {
-        return response.text();
-      })
-      .catch(function (error) {
-        console.warn(error);
-      }).finally(function () {
-        console.log("created")
-        setAlert(true)
-      });
+  // function createCell() {
+  //   let cell_id = prompt('Enter  cell_id');
+  //   let anode = prompt('Enter anode');
+  //   let cathode = prompt('Enter cathode');
+  //   let source  = prompt('Enter source');
+  //   let form_factor = prompt('Enter form fatcor')
+  //   let ah = prompt('Enter amp hours')
+  //   fetch('http://34.102.57.101:3001/cell', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({cell_id, anode, cathode, source, form_factor, ah }),
+  //   })
+  //     .then(response => {
+  //       return response.text();
+  //     })
+  //     .catch(function (error) {
+  //       console.warn(error);
+  //     }).finally(function () {
+  //       console.log("created")
+  //       setAlert(true)
+  //     });
 
-  }
+  // }
   
   function deleteCell() {
     let id = prompt('Confirm that you want to delete this cell_id by retyping');
@@ -281,7 +281,7 @@ const Table = ({ columns, data }) => {
      <Table columns={columns} data={cell_data} />
     </div>
     <div>
-  <button className='CRUD' onClick={() => createCell()}>
+  <button className='CRUD' onClick={() => toCreate()}>
           {"Create"}
         </button>
     </div>
