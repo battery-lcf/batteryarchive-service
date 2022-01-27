@@ -1,12 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import { useTable, useFilters, useGlobalFilter } from "react-table";
-import { Redirect } from "react-router-dom";
+import {Link, useNavigate} from 'react-router-dom';
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-
 import "./style.css"
 
 
@@ -16,6 +15,10 @@ function App() {
   const [alert, setAlert] = useState(true);
 
   useEffect(() => {
+    getCell()
+  }, []); 
+  
+  useEffect(() => {
     if(alert === true) {
       getCell()
       setAlert(false)
@@ -24,7 +27,16 @@ function App() {
     
   }, [alert]);  
 
+  const navigate = useNavigate();
 
+
+  const toEdit=(arg)=>{
+    navigate('/edit',{state:{cell_i: arg }});
+  }
+
+  function RenderAgain() {
+    setAlert(true)
+  }
   
   function getCell() {
     fetch('http://34.102.57.101:3001/')
@@ -65,31 +77,7 @@ function App() {
       });
 
   }
-  function editCell(cell_id) {
-
-    return <Redirect to='/Edit'  />
-    // let anode = prompt('Enter anode');
-    // let cathode = prompt('Enter cathode');
-    // let source  = prompt('Enter source');
-    // let form_factor = prompt('Enter form fatcor')
-    // let ah = prompt('Enter amp hours')
-    // fetch('http://34.102.57.101:3001/cell/'+cell_id, {
-    //   method: 'PUT',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ anode, cathode, source, form_factor, ah }),
-    // })
-    //   .then(response => {
-    //     return response.text();
-    //   })
-    //   .catch(function (error) {
-    //     console.warn(error);
-    //   }).finally(function () {
-    //     console.log("edited")
-    //     setAlert(true)
-    //   });
-  }
+  
   function deleteCell() {
     let id = prompt('Confirm that you want to delete this cell_id by retyping');
 
@@ -139,7 +127,7 @@ function App() {
        {
         Header: "Edit/Delete",
         Cell: ({ cell }) => ( <>
-        <button className='CRUD' onClick={() => window.location.href='/edit' }>
+        <button className='CRUD' onClick={()=>{toEdit(cell.row.values.cell_id)}}>
           {"Edit"}
         </button>
         <button className='CRUD' onClick={() => deleteCell()}>

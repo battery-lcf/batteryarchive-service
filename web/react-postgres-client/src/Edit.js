@@ -1,9 +1,12 @@
 import React, {useState} from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import "./Edit.css"
 
+
 function Edit() {
+    const location = useLocation();
     const [inputField , setInputField] = useState({
-        cell_id: '',
+        cell_id: location.state.cell_i,
         anode: '',
         cathode: '',
         source:'',
@@ -19,13 +22,16 @@ function Edit() {
         }));
       };
 
-    const submitButton = () =>{
+    const navigate = useNavigate();
+  
+    const SubmitButton = () =>{
         let anode = inputField.anode 
         let cathode = inputField.cathode
         let source = inputField.source
         let form_factor = inputField.form_factor
         let ah = inputField.ah
-        let cell_id = "ulcell_c"
+        let cell_id = location.state.cell_i
+        
 
         console.log(anode)
         console.log(cathode)
@@ -43,7 +49,9 @@ function Edit() {
               console.warn(error);
             }).finally(function () {
               console.log("edited")
-            });
+          });
+          navigate('/');
+
     }
 
     return (
@@ -111,7 +119,7 @@ function Edit() {
 
         <br/>
 
-        <button onClick={submitButton} className='submit-edit'>Submit Now</button>
+        <button onClick={SubmitButton} className='submit-edit'>Submit Now</button>
     </div>
     )
 
