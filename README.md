@@ -23,16 +23,7 @@ For more information, contact us at info@batteryarchive.org.
 [BASH for Windows](https://docs.microsoft.com/en-us/learn/paths/shell/)
 
 
-### Deploy Battery Archive Service with Redash (production) 
-
-
-Open New BASH Terminal
-```bash
-./bin/setup # run once to build relevant images and configs, re-running will regenerate auth for redash database
-./bin/start # launches all services: redash, bas-db, bas-server
-./bin/add_queries scripts/redash_queries  #add queries to redash UI
-./bin/add_data tests/payloads/localdata.json # add testdata into battery archive database 
-```
+### Build & Deploy Battery Archive Service with Redash (production) 
 
 `Host = 0.0.0.0`
 
