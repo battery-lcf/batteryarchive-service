@@ -8,7 +8,7 @@ TEST_DB_URL = "sqlite:///tests/test_data/db/bas-test.db"
 LIVE_DB_URL = "postgresql://postgres:sandia@localhost/cell_data"
 
 DB_URL = LIVE_DB_URL
-GA_API_HOST = "http://159.65.18.46:5001/api"
+GA_API_HOST = ""
 
 class TEST_TYPE(Enum):
     ABUSE = "abuse"
