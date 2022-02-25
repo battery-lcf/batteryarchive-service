@@ -11,8 +11,8 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 import pandas as pd
 from sqlalchemy.sql.sqltypes import FLOAT, TIMESTAMP
-from archive_constants import (LABEL, DEGREE, OUTPUT_LABELS, SLASH,
-                               ARCHIVE_TABLE, CELL_LIST_FILE_NAME, TEST_DB_URL)
+from app.archive_constants import (LABEL, DEGREE, OUTPUT_LABELS, SLASH,
+                               ARCHIVE_TABLE, CELL_LIST_FILE_NAME, DB_URL, TEST_DB_URL)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -28,6 +28,18 @@ class AbuseMeta(Model):
     v_init = Column(Float, nullable=True)
     indentor = Column(Float, nullable=True)
     nail_speed = Column(Float, nullable=True)
+
+    def to_dict(self):
+        return {
+            "index": self.index,
+            "temperature": self.temperature,
+            "thickness": self.thickness,
+            "v_init": self.v_init,
+            "indentor": self.indentor,
+            "nail_speed": self.nail_speed,
+            "cell_id": self.cell_id
+        }
+
 
 class AbuseTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_TS.value
@@ -53,12 +65,12 @@ class AbuseTimeSeries(Model):
             "axial_f": self.axial_f,
             "v": self.v,
             "strain": self.strain,
-            "temp_1": self.temp_1,
-            "temp_2": self.temp_2,
-            "temp_3": self.temp_3,
-            "temp_4": self.temp_4,
-            "temp_5": self.temp_5,
-            "temp_6": self.temp_6,
+            "pos_terminal_temperature": self.pos_terminal_temperature,
+            "neg_terminal_temperature": self.neg_terminal_temperature,
+            "left_bottom_temperature": self.left_bottom_temperature,
+            "right_bottom_temperature": self.right_bottom_temperature,
+            "above_punch_temperature": self.above_punch_temperature,
+            "below_punch_temperature": self.below_punch_temperature,
             "test_time": self.test_time,
             "cell_id": self.cell_id
         }
@@ -74,8 +86,8 @@ class CellMeta(Model):
     ah = Column(BigInteger, nullable=True)
     form_factor = Column(TEXT, nullable=True)
     test = Column(TEXT, nullable=True)
-    mapping = Column(TEXT, nullable=True)
     tester = Column(TEXT, nullable=True)
+    # mapping = Column(TEXT, nullable=True)
 
     def to_dict(self):
         return {
@@ -87,15 +99,15 @@ class CellMeta(Model):
             "ah": self.ah,
             "form_factor": self.form_factor,
             "test": self.test,
-            "mapping": self.mapping,
             "tester": self.tester
+            # "mapping": self.mapping
         }
 
     @staticmethod
     def columns():
         return [
             "index", "cell_id", "anode", "cathode", "source", "ah", "form_factor",
-            "test", "tester"
+            "test", "tester"#, "mapping"
         ]
 
 
@@ -154,8 +166,8 @@ class CycleTimeSeries(Model):
     ah_d = Column(Float, nullable=True)
     e_c = Column(Float, nullable=True)
     e_d = Column(Float, nullable=True)
-    temp_1 = Column(Float, nullable=True)
-    temp_2 = Column(Float, nullable=True)
+    env_temperature = Column(Float, nullable=True)
+    cell_temperature = Column(Float, nullable=True)
     cycle_time = Column(Float, nullable=True)
     date_time = Column(TIMESTAMP, nullable=True)
     cycle_index = Column(Integer, nullable=True)
@@ -169,8 +181,8 @@ class CycleTimeSeries(Model):
             "v": self.v,
             "ah_c": self.ah_c,
             "ah_d": self.ah_d,
-            "temp_1": self.temp_1,
-            "temp_2": self.temp_2,
+            "env_temperature": self.env_temperature,
+            "cell_temperature": self.cell_temperature,
             "e_c": self.e_c,
             "e_d": self.e_d,
             "cycle_time": self.cycle_time,
@@ -192,27 +204,23 @@ Archive Operator
 
 class ArchiveOperator:
     def __init__(self, config={}):
-        url = os.getenv('DATABASE_CONNECTION', TEST_DB_URL)
+        url = os.getenv('DATABASE_CONNECTION', DB_URL)
 
         engine = create_engine(url, **config)
         Model.metadata.create_all(engine)
         self.session = scoped_session(
             sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
-    def add_cell_to_db(self, cell):
+
+    def add_meta_to_db(self, cell):
         df_cell_md = cell.cellmeta
         df_test_meta_md = cell.testmeta
-        df_stats, df_timeseries = cell.stat
+        df_stats, _ = cell.stat
         df_cell_md.to_sql(cell.cell_meta_table,
                           con=self.session.bind,
                           if_exists="append",
                           chunksize=1000,
                           index=False)
-        df_timeseries.to_sql(cell.test_ts_table,
-                             con=self.session.bind,
-                             if_exists='append',
-                             chunksize=1000,
-                             index=False)
         df_test_meta_md.to_sql(cell.test_meta_table,
                                con=self.session.bind,
                                if_exists='append',
@@ -225,6 +233,39 @@ class ArchiveOperator:
                             chunksize=1000,
                             index=False)
 
+    def add_ts_to_db(self, cell): 
+        _, df_timeseries = cell.stat
+        df_timeseries.to_sql(cell.test_ts_table,
+                             con=self.session.bind,
+                             if_exists='append',
+                             chunksize=1000,
+                             index=False)
+
+    def add_cell_to_db(self, cell):
+        df_cell_md = cell.cellmeta
+        df_test_meta_md = cell.testmeta
+        df_stats, df_timeseries = cell.stat
+        df_cell_md.to_sql(cell.cell_meta_table,
+                          con=self.session.bind,
+                          if_exists="append",
+                          chunksize=1000,
+                          index=False)
+        df_test_meta_md.to_sql(cell.test_meta_table,
+                               con=self.session.bind,
+                               if_exists='append',
+                               chunksize=1000,
+                               index=False)
+        if cell.test_stats_table:
+            df_stats.to_sql(ARCHIVE_TABLE.CYCLE_STATS.value,
+                            con=self.session.bind,
+                            if_exists='append',
+                            chunksize=1000,
+                            index=False)
+        df_timeseries.to_sql(cell.test_ts_table,
+                             con=self.session.bind,
+                             if_exists='append',
+                             chunksize=1000,
+                             index=False)
     def add_cells_to_db(self, cell_list):
         for cell in cell_list:
             self.add_cell_to_db(cell)
@@ -257,8 +298,8 @@ class ArchiveOperator:
             CycleTimeSeries.ah_d.label(OUTPUT_LABELS.DISCHARGE_CAPACITY.value),
             CycleTimeSeries.e_c.label(OUTPUT_LABELS.CHARGE_ENERGY.value),
             CycleTimeSeries.e_d.label(OUTPUT_LABELS.DISCHARGE_ENERGY.value),
-            CycleTimeSeries.temp_1.label(OUTPUT_LABELS.ENV_TEMPERATURE.value),
-            CycleTimeSeries.temp_2.label(
+            CycleTimeSeries.env_temperature.label(OUTPUT_LABELS.ENV_TEMPERATURE.value),
+            CycleTimeSeries.cell_temperature.label(
                 OUTPUT_LABELS.CELL_TEMPERATURE.value)).filter(
                     CycleTimeSeries.cell_id == cell_id).statement
         return pd.read_sql(sql, self.session.bind).round(DEGREE)

@@ -1,14 +1,16 @@
 import pandas as pd
 import os, sys
 currentdir = os.getcwd()
+sys.path.append(os.path.join(currentdir))
 sys.path.append(os.path.join(currentdir, 'app'))
+
+
+
 from app.aio import CellTestReader, listToString, signedCurrent
 from app.converter import (calc_cycle_quantities, calc_cycle_stats,
                            calc_abuse_stats, sort_timeseries, split_abuse_metadata, split_cycle_metadata)
 from app.archive_constants import TEST_TYPE, TESTER
 testDataBasePath = os.path.join(currentdir, 'tests', 'test_data')
-rawTestDataPath = os.path.join(testDataBasePath, "01_raw")
-tmpBasePath = os.path.join(testDataBasePath, "tmp")
 
 
 def df_print(output, result):
@@ -147,10 +149,10 @@ def test_calc_cycle_stats():
 
 def test_prepare_maccor_file():
     maccor_file = os.path.join(
-        rawTestDataPath, "cycle", "MACCOR_example", "MACCOR_example.txt")
+        testDataBasePath, "cycle", "MACCOR_example", "MACCOR_example.txt")
     result_path = os.path.join(
-        rawTestDataPath, "cycle", "MACCOR_example", "MACCOR_example.txt_df")
-    print(rawTestDataPath)
+        testDataBasePath, "cycle", "MACCOR_example", "MACCOR_example.txt_df")
+    print(testDataBasePath)
     print(result_path)
     cellpath_df = CellTestReader(
         TESTER.MACCOR, TEST_TYPE.CYCLE).prepare_maccor_file(maccor_file)
@@ -167,7 +169,7 @@ def test_signedCurrent():
 
 def test_read_ornlabuse():
     cell_id = "S1Abuse"
-    file_path = os.path.join(rawTestDataPath,  "abuse-ornl", '')
+    file_path = os.path.join(testDataBasePath,  "abuse-ornl", '')
     output_df = CellTestReader(TESTER.ORNL, TEST_TYPE.ABUSE).read_ornlabuse(file_path)
     print(output_df)
 
@@ -245,7 +247,7 @@ def test_read_ornlabuse():
 
 def test_read_snlabuse():
     cell_id = "S2Abuse"
-    file_path = os.path.join(rawTestDataPath,  "abuse-snl", '')
+    file_path = os.path.join(testDataBasePath,  "abuse-snl", '')
     output_df = CellTestReader(TESTER.SNL, TEST_TYPE.ABUSE).read_snlabuse(file_path)
     result_df_cols = [
         "test_time",
@@ -295,30 +297,30 @@ def test_read_snlabuse():
 
 
 def test_read_maccor():
-    maccor_file = os.path.join(rawTestDataPath,  "cycle", "MACCOR_example", '')
+    maccor_file = os.path.join(testDataBasePath,  "cycle", "MACCOR_example", '')
     df_output = CellTestReader(
         TESTER.MACCOR, TEST_TYPE.CYCLE).read_maccor(maccor_file)
     assert len(df_output) == 499
-    remove_file = os.path.join(rawTestDataPath,  "cycle", "MACCOR_example", "MACCOR_example.txt_df")
+    remove_file = os.path.join(testDataBasePath,  "cycle", "MACCOR_example", "MACCOR_example.txt_df")
     os.remove(remove_file)
 
 
 def test_read_arbin():
-    arbin_file = os.path.join(rawTestDataPath,  "cycle-arbin", '')
+    arbin_file = os.path.join(testDataBasePath,  "cycle-arbin", '')
     df_output = CellTestReader(
         TESTER.ARBIN, TEST_TYPE.CYCLE).read_arbin(arbin_file)
     assert len(df_output) == 119
 
 
 def test_read_generic_csv():
-    csv_file = rawTestDataPath + "cycle-generic/csv/"
+    csv_file = os.path.join(testDataBasePath,"cycle-generic", "csv", "")
     df_output = CellTestReader(TESTER.GENERIC, TEST_TYPE.CYCLE).read_generic(csv_file, 'csv', 'date_time, test_time, cycle_index, i, v')
     assert len(df_output) == 460380
 
 
 def test_read_generic_h5():
     # requires tables
-    h5_file = rawTestDataPath + "cycle-generic/h5/"
+    h5_file = os.path.join(testDataBasePath,"cycle-generic", "h5", "")
     df_output = CellTestReader(TESTER.GENERIC, TEST_TYPE.CYCLE).read_generic(h5_file, 'h5', 'cycle_index,skip,test_time,i,cell_temperature,skip,v')
     assert len(df_output) == 568027
 
@@ -415,7 +417,7 @@ def test_populate_abuse_metadata():
     }]
     input_pd_df = pd.DataFrame(data=input_df, columns=input_df_cols)
     output_df_cell_md, output_df_test_md = split_abuse_metadata(input_pd_df)
-    assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 9
+    assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 8
     assert len(output_df_test_md) == 1 and len(output_df_test_md.columns) == 6
 
 
@@ -455,6 +457,9 @@ def test_populate_cycle_metadata():
     }]
     input_pd_df = pd.DataFrame(data=input_df, columns=input_df_cols)
     output_df_cell_md, output_df_test_md = split_cycle_metadata(input_pd_df)
-    assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 9
+    print(output_df_cell_md, output_df_test_md )
+    assert len(output_df_cell_md) == 1 and len(output_df_cell_md.columns) == 8
     assert len(output_df_test_md) == 1 and len(output_df_test_md.columns) == 6
+
+
 

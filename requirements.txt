@@ -12,3 +12,7 @@ gunicorn
 configparser
 connexion[swagger-ui]
 pyarrow
+batteryclient
+celery
+flask-cors
+tables

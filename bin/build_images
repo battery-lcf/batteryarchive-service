@@ -1,3 +1,0 @@
-docker build . -t tools --target tools
-docker build . -t bas-test --target test
-docker build . -t bas-prod --target prod 

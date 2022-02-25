@@ -1,8 +1,8 @@
-from archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
+from app.archive_constants import (LABEL, DEGREE, TEST_TYPE, TESTER, OUTPUT_LABELS,
                                SLASH, ARCHIVE_TABLE, CELL_LIST_FILE_NAME)
-from converter import (split_cycle_metadata, split_abuse_metadata,
+from app.converter import (split_cycle_metadata, split_abuse_metadata,
                        calc_cycle_stats, calc_abuse_stats)
-from aio import CellTestReader
+from app.aio import CellTestReader
 
 
 class TestTypeException(Exception):
@@ -39,7 +39,7 @@ class ArchiveCell:
             self.test_ts_table = ARCHIVE_TABLE.CYCLE_TS.value
             self.test_meta_table = ARCHIVE_TABLE.CYCLE_META.value
             self.test_stats_table = ARCHIVE_TABLE.CYCLE_STATS.value
-        if data: self.data = data
+        if data is not None: self.data = data
         else: self.load_data()
         if stat: self.stat = stat
         else: self.stat = self.calc_stats()

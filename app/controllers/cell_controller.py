@@ -1,16 +1,26 @@
-from app.model import ArchiveOperator, CellMeta
-from app.aio import ArchiveExporter
+from app.model import ArchiveOperator
+from app.aio import ArchiveExporter, GAReader
 from app.archive_cell import ArchiveCell
-from flask import request
+from flask import request, jsonify
 import pandas as pd
-from app.archive_constants import (LABEL, DEGREE, SLASH,
-                                       CELL_LIST_FILE_NAME, TEST_TYPE, FORMAT)
-
+from app.archive_constants import (LABEL, SLASH,
+                                   CELL_LIST_FILE_NAME, TEST_TYPE, FORMAT)
+import uuid
+import threading
 # Routes
+"tracker -> msg"
+global status
+status = {}
+"tracker -> id"
+global source
+source = {}
+
+# GA PUBLISH STATUS OPTIONS:
+# STARTED, IN_PROGRESS, FINISHED
 
 
 def root():
-    return 'Hello Battery Archive!', 200
+    return jsonify('Hello Battery Archive!')
 
 
 def liveness():
@@ -19,6 +29,79 @@ def liveness():
 
 def readiness():
     return "Ready", 200
+
+
+def finish(tracker):
+    if tracker in status:
+        status[tracker] = "FINISHED"
+        return {"tracker": tracker, "dataset_id": source[tracker]}, 200
+    return {"tracker": "not found", "dataset_id": source[tracker]}, 200
+
+
+def ga_finish(tracker, cell, status):
+    print("Working on", tracker)
+    print("Cell", cell)
+    print("STATUS", status)
+    print("STATUS OF TRACKER", status[tracker])
+    ArchiveOperator().add_cell_to_db(cell)
+    status[tracker] = "FINISHED"
+
+
+def ga_meta_finish(tracker, cell, status):
+    print("Working on", tracker)
+    print("Cell", cell)
+    print("STATUS", status)
+    print("STATUS OF TRACKER", status[tracker])
+    ArchiveOperator().add_meta_to_db(cell)
+
+
+def ga_data_finish(tracker, cell, status):
+    print("Working on", tracker)
+    print("Cell", cell)
+    print("STATUS", status)
+    print("STATUS OF TRACKER", status[tracker])
+    ArchiveOperator().add_ts_to_db(cell)
+
+
+def ga_publish(dataset_id):
+    body = request.json
+    token = body.get('token')
+    tracker = str(uuid.uuid4())
+    status[tracker] = "STARTED"
+    source[tracker] = dataset_id
+    gareader = GAReader(token)
+    metadata, columns = gareader.read_metadata(int(dataset_id))
+    if not metadata:
+        return jsonify(
+            {"message": "object is unreadable, missing a field or incorrect token", "dataset_id": dataset_id})
+    cell_id = metadata[LABEL.CELL_ID.value]
+
+    # Launch task into new thread
+    status[tracker] = "IN_PROGRESS"
+    data = gareader.read_data(int(dataset_id), columns)
+    if not data:
+        return jsonify(
+            {"message": "object is unreadable, missing a field or incorrect token", "dataset_id": dataset_id})
+    data[LABEL.CELL_ID.value] = cell_id
+    data = pd.DataFrame(data=data, columns=data.keys())
+    cell = ArchiveCell(cell_id,
+                       test_type=TEST_TYPE.CYCLE.value,
+                       metadata=metadata,
+                       data=data)
+
+    threading.Thread(target=ga_finish, name="data_thread",
+                     args=(tracker, cell, status)).start()
+    # # Add something from metadata into response
+    return jsonify(
+        {"tracker": tracker, "dataset_id": dataset_id, "token": token})
+
+
+def ga_publish_status(tracker):
+    if tracker in status and tracker in source:
+        return jsonify(
+            {"status": status[tracker], "dataset_id": source[tracker], "tracker": tracker})
+    return jsonify({"status": "Unknown Tracker ID",
+                    "dataset_id": "Unknown", "tracker": "Unknown"})
 
 
 def get_cells():
@@ -30,14 +113,14 @@ def get_cells():
     ao = ArchiveOperator()
     archive_cells = ao.get_all_cell_meta()
     result = [cell.to_dict() for cell in archive_cells]
-    return result, 200
+    return jsonify(result)
 
 
 def get_cell_with_id(cell_id):
     ao = ArchiveOperator()
     archive_cells = ao.get_all_cell_meta_with_id(cell_id)
     result = [cell.to_dict() for cell in archive_cells]
-    return result, 200
+    return jsonify(result)
 
 
 def get_test(test_name):
@@ -47,44 +130,44 @@ def get_test(test_name):
     if test_name == TEST_TYPE.CYCLE.value:
         archive_cells = ao.get_all_cycle_meta()
         result = [cell.to_dict() for cell in archive_cells]
-        return result, 200
+        return jsonify(result)
     if test_name == TEST_TYPE.ABUSE.value:
         archive_cells = ao.get_all_abuse_meta()
         result = [cell.to_dict() for cell in archive_cells]
-        return result, 200
+        return jsonify(result)
 
 
 def get_ts(test_name):
     if test_name == TEST_TYPE.CYCLE.value:
         archive_cells = ArchiveOperator().get_all_cycle_ts()
         result = [cell.to_dict() for cell in archive_cells]
-        return result, 200
+        return jsonify(result)
     if test_name == TEST_TYPE.ABUSE.value:
         archive_cells = ArchiveOperator().get_all_abuse_ts()
         result = [cell.to_dict() for cell in archive_cells]
-        return result, 200
+        return jsonify(result)
 
 
 def get_test_ts_with_id(cell_id, test_name):
     if test_name == TEST_TYPE.CYCLE.value:
         archive_cells = ArchiveOperator().get_all_cycle_ts_with_id(cell_id)
         result = [cell.to_dict() for cell in archive_cells]
-        return result, 200
+        return jsonify(result)
     if test_name == TEST_TYPE.ABUSE.value:
-        archive_cells = ArchiveOperator().get_all_abuse_ts_with_id()
+        archive_cells = ArchiveOperator().get_all_abuse_ts_with_id(cell_id)
         result = [cell.to_dict() for cell in archive_cells]
-        return result, 200
+        return jsonify(result)
 
 
 def get_meta_with_id(cell_id, test_name):
     if test_name == TEST_TYPE.CYCLE.value:
         archive_cells = ArchiveOperator().get_all_cycle_meta_with_id(cell_id)
         result = [cell.to_dict() for cell in archive_cells]
-        return result, 200
+        return jsonify(result)
     if test_name == TEST_TYPE.ABUSE.value:
-        archive_cells = ArchiveOperator().get_all_abuse_meta_with_id()
+        archive_cells = ArchiveOperator().get_all_abuse_meta_with_id(cell_id)
         result = [cell.to_dict() for cell in archive_cells]
-        return result, 200
+        return jsonify(result)
 
 
 def add_cell():
@@ -102,9 +185,9 @@ def add_cell():
 def export_cycle_cells_to_fmt(cell_list_path,
                               output_path: str,
                               fmt: str = "csv"):
-    #TODO: This implies cell_list must be xlsx, this can be written in CSV
+    # TODO: This implies cell_list must be xlsx, this can be written in CSV
     df_excel = pd.read_excel(cell_list_path + CELL_LIST_FILE_NAME)
-    #TODO: Refactor this to a join instead of looping slowly
+    # TODO: Refactor this to a join instead of looping slowly
     for i in df_excel.index:
         cell_id = df_excel[LABEL.CELL_ID.value][i]
         df = ArchiveOperator().get_df_cell_meta_with_id(cell_id)
