@@ -45,7 +45,8 @@ Below are commands that are helpful when developing Battery Archive
 Single line joint command to build image and launch BAS API Server and BAS DB
 
 ```
-docker build . -t bas-prod --target prod && docker run -p 4000:4000 -v $(pwd):/bas --rm  bas-prod
+docker build . -t bas-prod --target prod 
+docker run -p 4000:4000 -v $(pwd):/bas --rm  bas-prod
 ```
 
 Battery Archive Service is runnning
@@ -57,7 +58,8 @@ at `0.0.0.0:4000/`
 Single line joint command to build image and run pytests
 
 ```
-docker build . -t bas-test --target test && docker run bas-test
+docker build . -t bas-test --target test 
+docker run bas-test
 ```
 
 #
