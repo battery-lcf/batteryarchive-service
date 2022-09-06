@@ -15,10 +15,6 @@ status = {}
 global source
 source = {}
 
-# GA PUBLISH STATUS OPTIONS:
-# STARTED, IN_PROGRESS, FINISHED
-
-
 def root():
     return jsonify('Hello Battery Archive!')
 
