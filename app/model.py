@@ -28,6 +28,7 @@ class AbuseMeta(Model):
     v_init = Column(Float, nullable=True)
     indentor = Column(Float, nullable=True)
     nail_speed = Column(Float, nullable=True)
+    soc = Column(Float, nullable=True)
 
     def to_dict(self):
         return {
@@ -37,7 +38,8 @@ class AbuseMeta(Model):
             "v_init": self.v_init,
             "indentor": self.indentor,
             "nail_speed": self.nail_speed,
-            "cell_id": self.cell_id
+            "cell_id": self.cell_id,
+            "soc" : self.soc
         }
 
 
@@ -49,14 +51,16 @@ class AbuseTimeSeries(Model):
     v = Column(FLOAT, nullable=True)
     norm_d = Column(Float, nullable=True)
     strain = Column(Float, nullable=True)
-    pos_terminal_temperature = Column(Float, nullable=True)
-    neg_terminal_temperature = Column(Float, nullable=True)
+    top_indent_temperature = Column(Float, nullable=True)
+    top_back_temperature = Column(Float, nullable=True)
     left_bottom_temperature = Column(Float, nullable=True)
     right_bottom_temperature = Column(Float, nullable=True)
     above_punch_temperature = Column(Float, nullable=True)
     below_punch_temperature = Column(Float, nullable=True)
     test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
+    ambient_temperature = Column(Float, nullable=True)
+    load = Column(Float, nullable=True)
 
     def to_dict(self):
         return {
@@ -65,14 +69,16 @@ class AbuseTimeSeries(Model):
             "axial_f": self.axial_f,
             "v": self.v,
             "strain": self.strain,
-            "pos_terminal_temperature": self.pos_terminal_temperature,
-            "neg_terminal_temperature": self.neg_terminal_temperature,
+            "top_indent_temperature": self.top_indent_temperature,
+            "top_back_temperature": self.top_back_temperature,
             "left_bottom_temperature": self.left_bottom_temperature,
             "right_bottom_temperature": self.right_bottom_temperature,
             "above_punch_temperature": self.above_punch_temperature,
             "below_punch_temperature": self.below_punch_temperature,
             "test_time": self.test_time,
-            "cell_id": self.cell_id
+            "cell_id": self.cell_id,
+            "ambient_temperature": self.ambient_temperature,
+            "load": self.load
         }
 
 
@@ -87,6 +93,9 @@ class CellMeta(Model):
     form_factor = Column(TEXT, nullable=True)
     test = Column(TEXT, nullable=True)
     tester = Column(TEXT, nullable=True)
+    status = Column(TEXT, nullable=True)
+    weight = Column(TEXT, nullable=True)
+    dimensions = Column(TEXT, nullable=True)
     # mapping = Column(TEXT, nullable=True)
 
     def to_dict(self):
@@ -99,7 +108,10 @@ class CellMeta(Model):
             "ah": self.ah,
             "form_factor": self.form_factor,
             "test": self.test,
-            "tester": self.tester
+            "tester": self.tester,
+            "status": self.status,
+            "weight": self.weight,
+            "dimensions": self.dimensions
             # "mapping": self.mapping
         }
 
@@ -107,7 +119,7 @@ class CellMeta(Model):
     def columns():
         return [
             "index", "cell_id", "anode", "cathode", "source", "ah", "form_factor",
-            "test", "tester"#, "mapping"
+            "test", "tester","status", "weight", "dimensions"#, "mapping"
         ]
 
 
@@ -122,6 +134,7 @@ class CycleMeta(Model):
     crate_c = Column(Float, nullable=True)
     crate_d = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
+    step = Column(Integer, nullable=True)
 
     def to_dict(self):
         return {
@@ -133,7 +146,8 @@ class CycleMeta(Model):
             "v_min": self.v_min,
             "crate_c": self.crate_c,
             "crate_d": self.crate_d,
-            "cell_id": self.cell_id
+            "cell_id": self.cell_id,
+            "step": self.step
         }
 
 
