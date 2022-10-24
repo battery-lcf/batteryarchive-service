@@ -21,8 +21,7 @@ Model = declarative_base()
 
 class AbuseMeta(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_META.value
-    index = Column(Integer, primary_key=True)
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     temperature = Column(Float, nullable=True)
     thickness = Column(Float, nullable=True)
     v_init = Column(Float, nullable=True)
@@ -32,7 +31,6 @@ class AbuseMeta(Model):
 
     def to_dict(self):
         return {
-            "index": self.index,
             "temperature": self.temperature,
             "thickness": self.thickness,
             "v_init": self.v_init,
@@ -45,7 +43,6 @@ class AbuseMeta(Model):
 
 class AbuseTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_TS.value
-    index = Column(Integer, primary_key=True)
     axial_d = Column(Float, nullable=True)
     axial_f = Column(FLOAT, nullable=True)
     v = Column(FLOAT, nullable=True)
@@ -58,13 +55,12 @@ class AbuseTimeSeries(Model):
     above_punch_temperature = Column(Float, nullable=True)
     below_punch_temperature = Column(Float, nullable=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     ambient_temperature = Column(Float, nullable=True)
     load = Column(Float, nullable=True)
 
     def to_dict(self):
         return {
-            "index": self.index,
             "axial_d": self.axial_d,
             "axial_f": self.axial_f,
             "v": self.v,
@@ -84,8 +80,7 @@ class AbuseTimeSeries(Model):
 
 class CellMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CELL_META.value
-    index = Column(Integer, primary_key=True)
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     anode = Column(TEXT, nullable=True)
     cathode = Column(TEXT, nullable=True)
     source = Column(TEXT, nullable=True)
@@ -100,7 +95,6 @@ class CellMeta(Model):
 
     def to_dict(self):
         return {
-            "index": self.index,
             "cell_id": self.cell_id,
             "anode": self.anode,
             "cathode": self.cathode,
@@ -118,14 +112,13 @@ class CellMeta(Model):
     @staticmethod
     def columns():
         return [
-            "index", "cell_id", "anode", "cathode", "source", "ah", "form_factor",
+            "cell_id", "anode", "cathode", "source", "ah", "form_factor",
             "test", "tester","status", "weight", "dimensions"#, "mapping"
         ]
 
 
 class CycleMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_META.value
-    index = Column(Integer, primary_key=True)
     temperature = Column(Float, nullable=True)
     soc_max = Column(Float, nullable=True)
     soc_min = Column(Float, nullable=True)
@@ -133,12 +126,11 @@ class CycleMeta(Model):
     v_min = Column(Float, nullable=True)
     crate_c = Column(Float, nullable=True)
     crate_d = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     step = Column(Integer, nullable=True)
 
     def to_dict(self):
         return {
-            "index": self.index,
             "temperature": self.temperature,
             "soc_max": self.soc_max,
             "soc_min": self.soc_min,
@@ -153,7 +145,6 @@ class CycleMeta(Model):
 
 class CycleStats(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_STATS.value
-    index = Column(Integer, primary_key=True)
     v_max = Column(Float, nullable=True)
     v_min = Column(Float, nullable=True)
     ah_c = Column(Float, nullable=True)
@@ -168,10 +159,9 @@ class CycleStats(Model):
     ah_eff = Column(Float, nullable=True)
     cycle_index = Column(Integer, nullable=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     def to_dict(self):
         return {
-            "index": self.index,
             "v_max": self.v_max,
             "v_min": self.v_min,
             "ah_c": self.ah_c,
@@ -191,7 +181,6 @@ class CycleStats(Model):
 
 class CycleTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_TS.value
-    index = Column(Integer, primary_key=True)
     i = Column(Float, nullable=True)
     v = Column(Float, nullable=True)
     ah_c = Column(Float, nullable=True)
@@ -204,11 +193,10 @@ class CycleTimeSeries(Model):
     date_time = Column(TIMESTAMP, nullable=True)
     cycle_index = Column(Integer, nullable=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
 
     def to_dict(self):
         return {
-            "index": self.index,
             "i": self.i,
             "v": self.v,
             "ah_c": self.ah_c,
