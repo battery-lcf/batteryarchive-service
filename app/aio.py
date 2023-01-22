@@ -2,16 +2,10 @@ import glob
 import logging
 import pandas as pd
 import os
-from app.archive_constants import (GA_API_HOST, LABEL,
-                                   TEST_TYPE, TESTER, INP_LABELS, ARCHIVE_COLS, FORMAT)
+from app.archive_constants import (TEST_TYPE, TESTER, INP_LABELS, ARCHIVE_COLS, FORMAT)
 from app.converter import (sort_timeseries)
 import pyarrow.feather as feather
 import datetime
-import time
-import batteryclient
-from pprint import pprint
-from batteryclient.api import users_api
-import numpy as np
 
 
 class CellTestReader:
