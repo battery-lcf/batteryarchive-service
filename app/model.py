@@ -21,7 +21,7 @@ Model = declarative_base()
 
 class AbuseMeta(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_META.value
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     temperature = Column(Float, nullable=True)
     thickness = Column(Float, nullable=True)
     v_init = Column(Float, nullable=True)
@@ -55,7 +55,7 @@ class AbuseTimeSeries(Model):
     above_punch_temperature = Column(Float, nullable=True)
     below_punch_temperature = Column(Float, nullable=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     ambient_temperature = Column(Float, nullable=True)
     load = Column(Float, nullable=True)
 
@@ -80,18 +80,17 @@ class AbuseTimeSeries(Model):
 
 class CellMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CELL_META.value
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     anode = Column(TEXT, nullable=True)
     cathode = Column(TEXT, nullable=True)
     source = Column(TEXT, nullable=True)
-    ah = Column(BigInteger, nullable=True)
+    ah = Column(Integer, nullable=True)
     form_factor = Column(TEXT, nullable=True)
     test = Column(TEXT, nullable=True)
     tester = Column(TEXT, nullable=True)
     status = Column(TEXT, nullable=True)
     weight = Column(TEXT, nullable=True)
     dimensions = Column(TEXT, nullable=True)
-    # mapping = Column(TEXT, nullable=True)
 
     def to_dict(self):
         return {
@@ -126,7 +125,7 @@ class CycleMeta(Model):
     v_min = Column(Float, nullable=True)
     crate_c = Column(Float, nullable=True)
     crate_d = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     step = Column(Integer, nullable=True)
 
     def to_dict(self):
@@ -159,7 +158,7 @@ class CycleStats(Model):
     ah_eff = Column(Float, nullable=True)
     cycle_index = Column(Integer, nullable=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     def to_dict(self):
         return {
             "v_max": self.v_max,
@@ -193,7 +192,7 @@ class CycleTimeSeries(Model):
     date_time = Column(TIMESTAMP, nullable=True)
     cycle_index = Column(Integer, nullable=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
 
     def to_dict(self):
         return {
@@ -212,6 +211,40 @@ class CycleTimeSeries(Model):
             "cell_id": self.cell_id
         }
 
+class CycleTimeSeriesBuffer(Model):
+    __tablename__ = ARCHIVE_TABLE.CYCLE_TS_BUF.value
+    i = Column(Float, nullable=True)
+    v = Column(Float, nullable=True)
+    ah_c = Column(Float, nullable=True)
+    ah_d = Column(Float, nullable=True)
+    e_c = Column(Float, nullable=True)
+    e_d = Column(Float, nullable=True)
+    env_temperature = Column(Float, nullable=True)
+    cell_temperature = Column(Float, nullable=True)
+    cycle_time = Column(Float, nullable=True)
+    date_time = Column(TIMESTAMP, nullable=True)
+    cycle_index = Column(Integer, nullable=True)
+    test_time = Column(Float, nullable=True)
+    cell_id = Column(TEXT, nullable=False)
+    sheetname = Column(TEXT, nullable=True)
+
+    def to_dict(self):
+        return {
+            "i": self.i,
+            "v": self.v,
+            "ah_c": self.ah_c,
+            "ah_d": self.ah_d,
+            "env_temperature": self.env_temperature,
+            "cell_temperature": self.cell_temperature,
+            "e_c": self.e_c,
+            "e_d": self.e_d,
+            "cycle_time": self.cycle_time,
+            "date_time": self.date_time,
+            "cycle_index": self.cycle_index,
+            "test_time": self.test_time,
+            "cell_id": self.cell_id,
+            "sheetname" : self.sheetname
+        }
 
 """
 Archive Operator
