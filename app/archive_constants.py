@@ -36,7 +36,7 @@ class ARCHIVE_TABLE(Enum):
     CYCLE_META = "cycle_metadata"
     CYCLE_STATS = "cycle_stats"
     CYCLE_TS = "cycle_timeseries"
-    CYCLE_TS_BUFF = "cycle_timeseries_buffer"
+    CYCLE_TS_BUF = "cycle_timeseries_buffer"
 
 
 class INP_LABELS(Enum):
