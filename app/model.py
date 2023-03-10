@@ -2,7 +2,7 @@ import os
 from pandas.core.frame import DataFrame
 from sqlalchemy import (
     Column,
-    BigInteger,
+    Index,
     Integer,
     TEXT,
     Float,
@@ -28,6 +28,7 @@ class AbuseMeta(Model):
     indentor = Column(Float, nullable=True)
     nail_speed = Column(Float, nullable=True)
     soc = Column(Float, nullable=True)
+    idx_abuse_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
         return {
@@ -39,7 +40,6 @@ class AbuseMeta(Model):
             "cell_id": self.cell_id,
             "soc" : self.soc
         }
-
 
 class AbuseTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_TS.value
@@ -58,6 +58,7 @@ class AbuseTimeSeries(Model):
     cell_id = Column(TEXT, nullable=False)
     ambient_temperature = Column(Float, nullable=True)
     load = Column(Float, nullable=True)
+    idx_abuse_timeseries_cell_id = Index("cell_id")
 
     def to_dict(self):
         return {
@@ -77,7 +78,6 @@ class AbuseTimeSeries(Model):
             "load": self.load
         }
 
-
 class CellMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CELL_META.value
     cell_id = Column(TEXT, nullable=False)
@@ -91,6 +91,7 @@ class CellMeta(Model):
     status = Column(TEXT, nullable=True)
     weight = Column(TEXT, nullable=True)
     dimensions = Column(TEXT, nullable=True)
+    idx_cell_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
         return {
@@ -115,7 +116,6 @@ class CellMeta(Model):
             "test", "tester","status", "weight", "dimensions"#, "mapping"
         ]
 
-
 class CycleMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_META.value
     temperature = Column(Float, nullable=True)
@@ -127,6 +127,7 @@ class CycleMeta(Model):
     crate_d = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
     step = Column(Integer, nullable=True)
+    idx_cycle_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
         return {
@@ -140,7 +141,6 @@ class CycleMeta(Model):
             "cell_id": self.cell_id,
             "step": self.step
         }
-
 
 class CycleStats(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_STATS.value
@@ -159,6 +159,9 @@ class CycleStats(Model):
     cycle_index = Column(Integer, nullable=True)
     test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
+    idx_cycle_stats_cell_id_cycle_index = Index("cell_id", "cycle_index")
+    idx_cycle_stats_cell_id = Index("cell_id")
+
     def to_dict(self):
         return {
             "v_max": self.v_max,
@@ -193,6 +196,9 @@ class CycleTimeSeries(Model):
     cycle_index = Column(Integer, nullable=True)
     test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
+    idx_cycle_timeseries_cell_id_cycle_index = Index("cell_id", "cycle_index")
+    idx_cycle_timeseries_cell_id = Index("cell_id")
+
 
     def to_dict(self):
         return {
@@ -227,6 +233,9 @@ class CycleTimeSeriesBuffer(Model):
     test_time = Column(Float, nullable=True)
     cell_id = Column(TEXT, nullable=False)
     sheetname = Column(TEXT, nullable=True)
+    idx_cycle_timeseries_buffer_cell_id_cycle_index = Index("cell_id", "cycle_index")
+    idx_cycle_timeseries_buffer_cell_id = Index("cell_id")
+
 
     def to_dict(self):
         return {
