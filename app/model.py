@@ -21,13 +21,13 @@ Model = declarative_base()
 
 class AbuseMeta(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_META.value
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     temperature = Column(Float, nullable=True)
     thickness = Column(Float, nullable=True)
     v_init = Column(Float, nullable=True)
     indentor = Column(Float, nullable=True)
     nail_speed = Column(Float, nullable=True)
-    soc = Column(Float, nullable=True)
+    soc = Column(Float, nullable=True, primary_key=True)
     idx_abuse_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
@@ -54,8 +54,8 @@ class AbuseTimeSeries(Model):
     right_bottom_temperature = Column(Float, nullable=True)
     above_punch_temperature = Column(Float, nullable=True)
     below_punch_temperature = Column(Float, nullable=True)
-    test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
+    test_time = Column(Float, nullable=True, primary_key=True)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     ambient_temperature = Column(Float, nullable=True)
     load = Column(Float, nullable=True)
     idx_abuse_timeseries_cell_id = Index("cell_id")
@@ -80,13 +80,13 @@ class AbuseTimeSeries(Model):
 
 class CellMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CELL_META.value
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     anode = Column(TEXT, nullable=True)
     cathode = Column(TEXT, nullable=True)
     source = Column(TEXT, nullable=True)
     ah = Column(Integer, nullable=True)
     form_factor = Column(TEXT, nullable=True)
-    test = Column(TEXT, nullable=True)
+    test = Column(TEXT, nullable=False, primary_key=True)
     tester = Column(TEXT, nullable=True)
     status = Column(TEXT, nullable=True)
     weight = Column(TEXT, nullable=True)
@@ -125,8 +125,8 @@ class CycleMeta(Model):
     v_min = Column(Float, nullable=True)
     crate_c = Column(Float, nullable=True)
     crate_d = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
-    step = Column(Integer, nullable=True)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    step = Column(Integer, nullable=True, primary_key=True)
     idx_cycle_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
@@ -156,9 +156,9 @@ class CycleStats(Model):
     v_d_mean = Column(Float, nullable=True)
     e_eff = Column(Float, nullable=True)
     ah_eff = Column(Float, nullable=True)
-    cycle_index = Column(Integer, nullable=True)
-    test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
+    cycle_index = Column(Integer, nullable=True, primary_key=True)
+    test_time = Column(Float, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     idx_cycle_stats_cell_id_cycle_index = Index("cell_id", "cycle_index")
     idx_cycle_stats_cell_id = Index("cell_id")
 
@@ -193,9 +193,9 @@ class CycleTimeSeries(Model):
     cell_temperature = Column(Float, nullable=True)
     cycle_time = Column(Float, nullable=True)
     date_time = Column(TIMESTAMP, nullable=True)
-    cycle_index = Column(Integer, nullable=True)
+    cycle_index = Column(Integer, nullable=False, primary_key=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     idx_cycle_timeseries_cell_id_cycle_index = Index("cell_id", "cycle_index")
     idx_cycle_timeseries_cell_id = Index("cell_id")
 
@@ -229,9 +229,9 @@ class CycleTimeSeriesBuffer(Model):
     cell_temperature = Column(Float, nullable=True)
     cycle_time = Column(Float, nullable=True)
     date_time = Column(TIMESTAMP, nullable=True)
-    cycle_index = Column(Integer, nullable=True)
+    cycle_index = Column(Integer, nullable=False, primary_key=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False)
+    cell_id = Column(TEXT, nullable=False, primary_key=True)
     sheetname = Column(TEXT, nullable=True)
     idx_cycle_timeseries_buffer_cell_id_cycle_index = Index("cell_id", "cycle_index")
     idx_cycle_timeseries_buffer_cell_id = Index("cell_id")
