@@ -21,13 +21,14 @@ Model = declarative_base()
 
 class AbuseMeta(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_META.value
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    index = Column(Integer, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     temperature = Column(Float, nullable=True)
     thickness = Column(Float, nullable=True)
     v_init = Column(Float, nullable=True)
     indentor = Column(Float, nullable=True)
     nail_speed = Column(Float, nullable=True)
-    soc = Column(Float, nullable=True, primary_key=True)
+    soc = Column(Float, nullable=True)
     idx_abuse_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
@@ -43,6 +44,7 @@ class AbuseMeta(Model):
 
 class AbuseTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_TS.value
+    index = Column(Integer, primary_key=True)
     axial_d = Column(Float, nullable=True)
     axial_f = Column(FLOAT, nullable=True)
     v = Column(FLOAT, nullable=True)
@@ -54,8 +56,8 @@ class AbuseTimeSeries(Model):
     right_bottom_temperature = Column(Float, nullable=True)
     above_punch_temperature = Column(Float, nullable=True)
     below_punch_temperature = Column(Float, nullable=True)
-    test_time = Column(Float, nullable=True, primary_key=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    test_time = Column(Float, nullable=True)
+    cell_id = Column(TEXT, nullable=False)
     ambient_temperature = Column(Float, nullable=True)
     load = Column(Float, nullable=True)
     idx_abuse_timeseries_cell_id = Index("cell_id")
@@ -80,13 +82,14 @@ class AbuseTimeSeries(Model):
 
 class CellMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CELL_META.value
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    index = Column(Integer, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     anode = Column(TEXT, nullable=True)
     cathode = Column(TEXT, nullable=True)
     source = Column(TEXT, nullable=True)
     ah = Column(Integer, nullable=True)
     form_factor = Column(TEXT, nullable=True)
-    test = Column(TEXT, nullable=False, primary_key=True)
+    test = Column(TEXT, nullable=False)
     tester = Column(TEXT, nullable=True)
     status = Column(TEXT, nullable=True)
     weight = Column(TEXT, nullable=True)
@@ -118,6 +121,7 @@ class CellMeta(Model):
 
 class CycleMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_META.value
+    index = Column(Integer, primary_key=True)
     temperature = Column(Float, nullable=True)
     soc_max = Column(Float, nullable=True)
     soc_min = Column(Float, nullable=True)
@@ -125,8 +129,8 @@ class CycleMeta(Model):
     v_min = Column(Float, nullable=True)
     crate_c = Column(Float, nullable=True)
     crate_d = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
-    step = Column(Integer, nullable=True, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
+    step = Column(Integer, nullable=True)
     idx_cycle_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
@@ -144,6 +148,7 @@ class CycleMeta(Model):
 
 class CycleStats(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_STATS.value
+    index = Column(Integer, primary_key=True)
     v_max = Column(Float, nullable=True)
     v_min = Column(Float, nullable=True)
     ah_c = Column(Float, nullable=True)
@@ -156,9 +161,9 @@ class CycleStats(Model):
     v_d_mean = Column(Float, nullable=True)
     e_eff = Column(Float, nullable=True)
     ah_eff = Column(Float, nullable=True)
-    cycle_index = Column(Integer, nullable=True, primary_key=True)
-    test_time = Column(Float, nullable=False, primary_key=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cycle_index = Column(Integer, nullable=True)
+    test_time = Column(Float, nullable=False)
+    cell_id = Column(TEXT, nullable=False)
     idx_cycle_stats_cell_id_cycle_index = Index("cell_id", "cycle_index")
     idx_cycle_stats_cell_id = Index("cell_id")
 
@@ -183,6 +188,7 @@ class CycleStats(Model):
 
 class CycleTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_TS.value
+    index = Column(Integer, primary_key=True)
     i = Column(Float, nullable=True)
     v = Column(Float, nullable=True)
     ah_c = Column(Float, nullable=True)
@@ -193,9 +199,9 @@ class CycleTimeSeries(Model):
     cell_temperature = Column(Float, nullable=True)
     cycle_time = Column(Float, nullable=True)
     date_time = Column(TIMESTAMP, nullable=True)
-    cycle_index = Column(Integer, nullable=False, primary_key=True)
+    cycle_index = Column(Integer, nullable=False)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     idx_cycle_timeseries_cell_id_cycle_index = Index("cell_id", "cycle_index")
     idx_cycle_timeseries_cell_id = Index("cell_id")
 
@@ -219,6 +225,7 @@ class CycleTimeSeries(Model):
 
 class CycleTimeSeriesBuffer(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_TS_BUF.value
+    index = Column(Integer, primary_key=True)
     i = Column(Float, nullable=True)
     v = Column(Float, nullable=True)
     ah_c = Column(Float, nullable=True)
@@ -229,9 +236,9 @@ class CycleTimeSeriesBuffer(Model):
     cell_temperature = Column(Float, nullable=True)
     cycle_time = Column(Float, nullable=True)
     date_time = Column(TIMESTAMP, nullable=True)
-    cycle_index = Column(Integer, nullable=False, primary_key=True)
+    cycle_index = Column(Integer, nullable=False)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     sheetname = Column(TEXT, nullable=True)
     idx_cycle_timeseries_buffer_cell_id_cycle_index = Index("cell_id", "cycle_index")
     idx_cycle_timeseries_buffer_cell_id = Index("cell_id")
