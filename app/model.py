@@ -2,7 +2,7 @@ import os
 from pandas.core.frame import DataFrame
 from sqlalchemy import (
     Column,
-    BigInteger,
+    Index,
     Integer,
     TEXT,
     Float,
@@ -21,13 +21,15 @@ Model = declarative_base()
 
 class AbuseMeta(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_META.value
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    index = Column(Integer, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     temperature = Column(Float, nullable=True)
     thickness = Column(Float, nullable=True)
     v_init = Column(Float, nullable=True)
     indentor = Column(Float, nullable=True)
     nail_speed = Column(Float, nullable=True)
     soc = Column(Float, nullable=True)
+    idx_abuse_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
         return {
@@ -40,9 +42,9 @@ class AbuseMeta(Model):
             "soc" : self.soc
         }
 
-
 class AbuseTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.ABUSE_TS.value
+    index = Column(Integer, primary_key=True)
     axial_d = Column(Float, nullable=True)
     axial_f = Column(FLOAT, nullable=True)
     v = Column(FLOAT, nullable=True)
@@ -55,9 +57,10 @@ class AbuseTimeSeries(Model):
     above_punch_temperature = Column(Float, nullable=True)
     below_punch_temperature = Column(Float, nullable=True)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     ambient_temperature = Column(Float, nullable=True)
     load = Column(Float, nullable=True)
+    idx_abuse_timeseries_cell_id = Index("cell_id")
 
     def to_dict(self):
         return {
@@ -77,21 +80,21 @@ class AbuseTimeSeries(Model):
             "load": self.load
         }
 
-
 class CellMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CELL_META.value
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    index = Column(Integer, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     anode = Column(TEXT, nullable=True)
     cathode = Column(TEXT, nullable=True)
     source = Column(TEXT, nullable=True)
-    ah = Column(BigInteger, nullable=True)
+    ah = Column(Integer, nullable=True)
     form_factor = Column(TEXT, nullable=True)
-    test = Column(TEXT, nullable=True)
+    test = Column(TEXT, nullable=False)
     tester = Column(TEXT, nullable=True)
     status = Column(TEXT, nullable=True)
     weight = Column(TEXT, nullable=True)
     dimensions = Column(TEXT, nullable=True)
-    # mapping = Column(TEXT, nullable=True)
+    idx_cell_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
         return {
@@ -116,9 +119,9 @@ class CellMeta(Model):
             "test", "tester","status", "weight", "dimensions"#, "mapping"
         ]
 
-
 class CycleMeta(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_META.value
+    index = Column(Integer, primary_key=True)
     temperature = Column(Float, nullable=True)
     soc_max = Column(Float, nullable=True)
     soc_min = Column(Float, nullable=True)
@@ -126,8 +129,9 @@ class CycleMeta(Model):
     v_min = Column(Float, nullable=True)
     crate_c = Column(Float, nullable=True)
     crate_d = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
     step = Column(Integer, nullable=True)
+    idx_cycle_metadata_cell_id = Index("cell_id")
 
     def to_dict(self):
         return {
@@ -142,9 +146,9 @@ class CycleMeta(Model):
             "step": self.step
         }
 
-
 class CycleStats(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_STATS.value
+    index = Column(Integer, primary_key=True)
     v_max = Column(Float, nullable=True)
     v_min = Column(Float, nullable=True)
     ah_c = Column(Float, nullable=True)
@@ -158,8 +162,11 @@ class CycleStats(Model):
     e_eff = Column(Float, nullable=True)
     ah_eff = Column(Float, nullable=True)
     cycle_index = Column(Integer, nullable=True)
-    test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    test_time = Column(Float, nullable=False)
+    cell_id = Column(TEXT, nullable=False)
+    idx_cycle_stats_cell_id_cycle_index = Index("cell_id", "cycle_index")
+    idx_cycle_stats_cell_id = Index("cell_id")
+
     def to_dict(self):
         return {
             "v_max": self.v_max,
@@ -181,6 +188,7 @@ class CycleStats(Model):
 
 class CycleTimeSeries(Model):
     __tablename__ = ARCHIVE_TABLE.CYCLE_TS.value
+    index = Column(Integer, primary_key=True)
     i = Column(Float, nullable=True)
     v = Column(Float, nullable=True)
     ah_c = Column(Float, nullable=True)
@@ -191,9 +199,12 @@ class CycleTimeSeries(Model):
     cell_temperature = Column(Float, nullable=True)
     cycle_time = Column(Float, nullable=True)
     date_time = Column(TIMESTAMP, nullable=True)
-    cycle_index = Column(Integer, nullable=True)
+    cycle_index = Column(Integer, nullable=False)
     test_time = Column(Float, nullable=True)
-    cell_id = Column(TEXT, nullable=False, primary_key=True)
+    cell_id = Column(TEXT, nullable=False)
+    idx_cycle_timeseries_cell_id_cycle_index = Index("cell_id", "cycle_index")
+    idx_cycle_timeseries_cell_id = Index("cell_id")
+
 
     def to_dict(self):
         return {
@@ -212,6 +223,44 @@ class CycleTimeSeries(Model):
             "cell_id": self.cell_id
         }
 
+class CycleTimeSeriesBuffer(Model):
+    __tablename__ = ARCHIVE_TABLE.CYCLE_TS_BUF.value
+    index = Column(Integer, primary_key=True)
+    i = Column(Float, nullable=True)
+    v = Column(Float, nullable=True)
+    ah_c = Column(Float, nullable=True)
+    ah_d = Column(Float, nullable=True)
+    e_c = Column(Float, nullable=True)
+    e_d = Column(Float, nullable=True)
+    env_temperature = Column(Float, nullable=True)
+    cell_temperature = Column(Float, nullable=True)
+    cycle_time = Column(Float, nullable=True)
+    date_time = Column(TIMESTAMP, nullable=True)
+    cycle_index = Column(Integer, nullable=False)
+    test_time = Column(Float, nullable=True)
+    cell_id = Column(TEXT, nullable=False)
+    sheetname = Column(TEXT, nullable=True)
+    idx_cycle_timeseries_buffer_cell_id_cycle_index = Index("cell_id", "cycle_index")
+    idx_cycle_timeseries_buffer_cell_id = Index("cell_id")
+
+
+    def to_dict(self):
+        return {
+            "i": self.i,
+            "v": self.v,
+            "ah_c": self.ah_c,
+            "ah_d": self.ah_d,
+            "env_temperature": self.env_temperature,
+            "cell_temperature": self.cell_temperature,
+            "e_c": self.e_c,
+            "e_d": self.e_d,
+            "cycle_time": self.cycle_time,
+            "date_time": self.date_time,
+            "cycle_index": self.cycle_index,
+            "test_time": self.test_time,
+            "cell_id": self.cell_id,
+            "sheetname" : self.sheetname
+        }
 
 """
 Archive Operator
